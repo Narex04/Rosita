@@ -1,0 +1,411 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    background-color: #111;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+#app-container {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+/* --- Capas de Video --- */
+.video-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    display: none;
+    background-color: #000; 
+}
+.video-layer.active {
+    display: block;
+}
+.fullscreen-video { /* Video del menú y base para los buffers de slide */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: filter 0.5s ease-in-out; /* Solo mantenemos la transición del blur */
+}
+.fullscreen-video.blurred {
+    filter: blur(10px);
+}
+
+/* Para el doble buffer en slides */
+.slide-video-buffer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+    opacity: 0; 
+    z-index: 5; 
+}
+.slide-video-buffer.visible {
+    opacity: 1;
+    z-index: 10; 
+}
+
+
+/* --- Capas de UI (Intro y Overlay Principal) --- */
+.ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    display: none;
+    overflow: hidden; 
+}
+.ui-layer.active {
+    display: flex; 
+}
+
+/* --- Estilos de la Capa de Introducción --- */
+#intro-layer.active { 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center; 
+}
+
+#intro-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px; 
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    text-align: center; 
+    margin-bottom: 100px; 
+}
+#intro-content-wrapper.visible { 
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#intro-title {
+    font-size: 5.5rem;
+    font-weight: 900;
+    color: white;
+    text-align: center;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+    margin: 0;
+}
+
+#start-experience-button {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    padding: 12px 25px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 25px; 
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; 
+    box-shadow: 0 0 0 rgba(255,255,255,0); 
+}
+#start-experience-button:hover:not(.waiting) {
+    background-color: rgba(255, 255, 255, 0.35);
+    transform: scale(1.05);
+    box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.5); 
+}
+#start-experience-button.waiting { 
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: scale(1);
+    box-shadow: none;
+}
+
+#intro-disclaimer {
+    position: absolute;
+    bottom: 30px; 
+    margin-bottom: calc(40px + 10px); 
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    max-width: 900px; 
+    padding: 15px;
+    background-color: rgba(0, 0, 0, 0.6); 
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.8s ease-out 0.5s; 
+    z-index: 5; 
+}
+#intro-disclaimer p {
+    color: rgba(255, 255, 255, 0.85); 
+    font-size: 0.8rem; 
+    text-align: center;
+    line-height: 1.6;
+    margin: 0;
+}
+#intro-layer.active #intro-content-wrapper.visible + #intro-disclaimer { 
+    opacity: 1;
+}
+
+
+/* --- Menú Principal (dentro de #ui-overlay-layer) --- */
+#ui-overlay-layer { 
+    justify-content: center;
+    align-items: center;
+}
+
+#menu-buttons-area { 
+    display: none; 
+    flex-direction: row; 
+    gap: 25px;
+    margin-bottom: 70px; 
+}
+.menu-button { 
+    width: 60px; height: 60px; background-color: white; border-radius: 50%; border: none;
+    cursor: pointer; font-size: 1.5em; font-weight: bold; color: #333; display: flex;
+    justify-content: center; align-items: center;
+    transition: box-shadow 0.3s ease, transform 0.2s ease, background-color 0.2s ease;
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+}
+.menu-button:hover:not(.active):not(.waiting) { 
+    box-shadow: 0 0 20px 8px rgba(255, 255, 255, 0.85), 0 0 35px 15px rgba(255, 255, 255, 0.6);
+    transform: scale(1.08); 
+    border-color: transparent;
+}
+.menu-button.waiting { 
+    opacity: 0.5; cursor: not-allowed; box-shadow: none; transform: scale(1);
+}
+
+/* --- Botón de Información y Recuadro de Texto del Menú Principal --- */
+#menu-info-button {
+    position: absolute;
+    bottom: 30px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    width: 40px;
+    height: 40px;
+    background-color: rgba(255, 255, 255, 0.3);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: none; 
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    z-index: 10; 
+}
+#menu-info-button:hover:not(.waiting) {
+    background-color: rgba(255, 255, 255, 0.5);
+    transform: translateX(-50%) scale(1.1); 
+    box-shadow: 0 0 10px 3px rgba(255, 255, 255, 0.4);
+}
+#menu-info-button.waiting {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: translateX(-50%) scale(1); 
+    box-shadow: none;
+}
+#menu-info-button.active { 
+    background-color: rgba(255, 255, 255, 0.6);
+}
+
+.text-block { 
+    background-color: rgba(250, 250, 250, 0.93);
+    color: #333; 
+    padding: 20px 25px; 
+    border-radius: 10px; 
+    overflow-y: auto; 
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15); 
+    opacity: 0; 
+    visibility: hidden;
+    transition: opacity 0.3s ease-out, visibility 0s linear 0.3s, transform 0.3s ease-out;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.4) rgba(0,0,0,0.1);
+}
+.text-block.visible { 
+    opacity: 1; 
+    visibility: visible; 
+    transform: translateX(0) scale(1); 
+    transition-delay: 0.1s;
+    transition: opacity 0.4s ease-out, visibility 0s linear 0s, transform 0.4s ease-out;
+}
+.text-block::-webkit-scrollbar { width: 8px; }
+.text-block::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
+.text-block::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.4); border-radius: 4px; border: 2px solid transparent; background-clip: content-box; }
+
+
+#menu-info-text-block { 
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%); 
+    width: 90%; 
+    max-width: 700px; 
+    max-height: 70vh; 
+    z-index: 15; 
+}
+#menu-info-text-block.visible { 
+    transform: translate(-50%, -50%) scale(1);
+}
+#menu-info-text-block h3 { margin-top: 0; color: #1a1a1a; font-size: 1.6rem; margin-bottom: 15px;}
+#menu-info-text-block p { font-size: 0.95rem; line-height: 1.7;}
+
+
+/* --- Elementos Interactivos de las Diapositivas --- */
+#slide-interactive-elements { 
+    display: none; 
+    position: absolute; 
+    left: 0; 
+    right: 0;
+    top: 50%; 
+    transform: translateY(-50%); 
+    padding: 0 60px; 
+    width: 100%; 
+    height: calc(100vh - 100px); 
+    max-height: 650px; 
+    box-sizing: border-box;
+}
+
+.slide-specific-content {
+    display: none; 
+    width: 100%;
+    height: 100%;
+    flex-direction: column; 
+    align-items: stretch; 
+}
+.slide-specific-content.active {
+    display: flex;
+}
+
+.slide-main-interactive-area {
+    display: flex;
+    flex-direction: row;
+    gap: 30px; 
+    width: 100%;
+    flex-grow: 1; 
+    overflow: hidden; 
+    position: relative; 
+}
+
+.circle-buttons-container { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px; 
+    padding: 25px; 
+    max-height: 100%; 
+    overflow-y: auto; 
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.4) rgba(0,0,0,0.2);
+    flex-shrink: 0; 
+}
+.circle-buttons-container::-webkit-scrollbar { width: 6px; }
+.circle-buttons-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 3px; }
+.circle-buttons-container::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.4); border-radius: 3px; }
+
+.circle-button { 
+    width: 45px; 
+    height: 45px; 
+    background-color: white; border-radius: 50%; border: none;
+    cursor: pointer; font-size: 1.1em; font-weight: bold; color: #333; display: flex;
+    justify-content: center; align-items: center;
+    transition: box-shadow 0.3s ease, transform 0.2s ease, background-color 0.2s ease;
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+    flex-shrink: 0; 
+    position: relative; 
+    z-index: 1; 
+}
+.circle-button:hover:not(.active):not(.waiting) { 
+    box-shadow: 0 0 15px 6px rgba(255, 255, 255, 0.8), 0 0 25px 12px rgba(255, 255, 255, 0.5);
+    transform: scale(1.08); 
+    border-color: transparent;
+    z-index: 2; 
+}
+.circle-button.active { 
+    background-color: #e0e0e0; 
+    box-shadow: 0 0 8px 2px rgba(0, 0, 0, 0.15) inset; 
+    transform: scale(1); 
+    border: none;
+    z-index: 1; 
+}
+.circle-button.waiting { 
+    opacity: 0.5; cursor: not-allowed; box-shadow: none; transform: scale(1);
+    z-index: 0; 
+}
+
+.slide-main-interactive-area > .text-block { 
+    position: absolute;
+    left: 140px; /* AJUSTA ESTE VALOR: (ancho del .circle-buttons-container) + (gap de 30px) */
+    width: 400px; 
+    max-height: calc(100% - 40px); 
+    top: 0; 
+    transform: translateX(-20px) scale(0.95); 
+}
+
+.slide-navigation-buttons {
+    display: flex;
+    justify-content: space-between; 
+    width: 100%;
+    padding: 15px 0 5px 0; 
+    box-sizing: border-box;
+    margin-top: auto; 
+}
+
+.slide-next-button, .slide-prev-button {
+    background-color: rgba(255, 255, 255, 0.25);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    padding: 8px 18px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    border-radius: 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.slide-next-button:hover:not(.waiting), .slide-prev-button:hover:not(.waiting) {
+    background-color: rgba(255, 255, 255, 0.4);
+    transform: scale(1.03);
+}
+.slide-next-button.waiting, .slide-prev-button.waiting {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: scale(1);
+}
+
+/* --- Botones de Volver Generales --- */
+#slide-back-to-menu-button, #menu-back-to-intro-button { 
+    position: absolute; 
+    top: 30px; 
+    left: 30px; 
+    padding: 10px 15px; 
+    font-size: 1.2em; 
+    background-color: rgba(40, 40, 40, 0.7); 
+    color: white; 
+    border: none; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    display: none; 
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    z-index: 20; 
+}
+#slide-back-to-menu-button:hover:not(.waiting), #menu-back-to-intro-button:hover:not(.waiting) { 
+    background-color: rgba(40, 40, 40, 0.95);
+    transform: scale(1.05);
+}
+#slide-back-to-menu-button.waiting, #menu-back-to-intro-button.waiting { 
+    opacity: 0.6; cursor: not-allowed; transform: scale(1);
+}
