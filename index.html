@@ -17,6 +17,13 @@
         </video>
     </div>
 
+    <!-- Capa de Video de Transición Dedicada -->
+    <div id="transition-video-layer" class="video-layer">
+        <video muted playsinline class="fullscreen-video" id="transition-video-element">
+            Tu navegador no soporta videos HTML5.
+        </video>
+    </div>
+
     <!-- Capa de Video de Fondo de las Diapositivas con Doble Buffer -->
     <div id="slide-video-layer" class="video-layer">
         <video muted playsinline class="fullscreen-video slide-video-buffer" id="slide-video-buffer-1">
@@ -30,7 +37,7 @@
     <!-- Capa de Introducción -->
     <div id="intro-layer" class="ui-layer active">
         <div id="intro-content-wrapper">
-            <h1 id="intro-title">ROSITA</h1>
+            <h1 id="intro-title">Una vista del patrimonio cultural inmaterial de la Virgen de Las Lajas</h1>
             <button id="start-experience-button">COMENZAR LA EXPERIENCIA</button>
         </div>
         <div id="intro-disclaimer">
@@ -51,11 +58,31 @@
         <button id="menu-back-to-intro-button">← Inicio</button>
 
         <div id="menu-buttons-area">
-            <button class="menu-button" data-animation="videos/slide1-animation.mp4" data-slide-id="slide1">1</button>
-            <button class="menu-button" data-animation="videos/slide2-animation.mp4" data-slide-id="slide2">2</button>
-            <button class="menu-button" data-animation="videos/slide3-animation.mp4" data-slide-id="slide3">3</button>
-            <button class="menu-button" data-animation="videos/slide4-animation.mp4" data-slide-id="slide4">4</button>
-            <button class="menu-button" data-animation="videos/slide5-animation.mp4" data-slide-id="slide5">5</button>
+            <button class="menu-button" 
+                    data-slide-id="slide1" 
+                    data-animation="videos/slide1-animation.mp4" 
+                    data-entry-transition="videos/menu-to-slide1-transition.mp4"
+                    data-exit-transition="videos/slide1-to-menu-transition.mp4">1</button>
+            <button class="menu-button" 
+                    data-slide-id="slide2" 
+                    data-animation="videos/slide2-animation.mp4" 
+                    data-entry-transition="videos/menu-to-slide2-transition.mp4"
+                    data-exit-transition="videos/slide2-to-menu-transition.mp4">2</button>
+            <button class="menu-button" 
+                    data-slide-id="slide3" 
+                    data-animation="videos/slide3-animation.mp4" 
+                    data-entry-transition="videos/menu-to-slide3-transition.mp4"
+                    data-exit-transition="videos/slide3-to-menu-transition.mp4">3</button>
+            <button class="menu-button" 
+                    data-slide-id="slide4" 
+                    data-animation="videos/slide4-animation.mp4" 
+                    data-entry-transition="videos/menu-to-slide4-transition.mp4"
+                    data-exit-transition="videos/slide4-to-menu-transition.mp4">4</button>
+            <button class="menu-button" 
+                    data-slide-id="slide5" 
+                    data-animation="videos/slide5-animation.mp4" 
+                    data-entry-transition="videos/menu-to-slide5-transition.mp4"
+                    data-exit-transition="videos/slide5-to-menu-transition.mp4">5</button>
         </div>
 
         <div id="slide-interactive-elements">
@@ -79,7 +106,10 @@
                 </div>
                 <div class="slide-navigation-buttons">
                     <span></span> 
-                    <button class="slide-next-button" data-next-slide-id="slide2" data-next-animation="videos/slide2-animation.mp4">Siguiente →</button>
+                    <button class="slide-next-button" 
+                            data-next-slide-id="slide2" 
+                            data-next-animation="videos/slide2-animation.mp4"
+                            data-transition-video="videos/slide1-to-slide2-transition.mp4">Siguiente →</button>
                 </div>
             </div>
 
@@ -100,8 +130,14 @@
                     <div id="s2-text-block-5" class="text-block"><h3>Consagración de los Niños</h3><p>Particularmente, se consagra tanto a la Virgen de Las Lajas como al Niño Jesús. Se realiza el último día de la novena, siendo la parroquia de Las Lajas la anfitriona. Los principales actores son la primera infancia y adolescencia, que participan disfrazados de personajes navideños (pastores, ángeles, reyes magos, María, José, y un niño como el Niño Jesús). El recorrido es similar al de las novenas, terminando en la Basílica Menor con eucaristía, consagración infantil y entrega de detalles navideños.</p></div>
                 </div>
                 <div class="slide-navigation-buttons">
-                    <button class="slide-prev-button" data-prev-slide-id="slide1" data-prev-animation="videos/slide1-animation.mp4">← Anterior</button>
-                    <button class="slide-next-button" data-next-slide-id="slide3" data-next-animation="videos/slide3-animation.mp4">Siguiente →</button>
+                    <button class="slide-prev-button" 
+                            data-prev-slide-id="slide1" 
+                            data-prev-animation="videos/slide1-animation.mp4"
+                            data-transition-video="videos/slide2-to-slide1-transition.mp4">← Anterior</button>
+                    <button class="slide-next-button" 
+                            data-next-slide-id="slide3" 
+                            data-next-animation="videos/slide3-animation.mp4"
+                            data-transition-video="videos/slide2-to-slide3-transition.mp4">Siguiente →</button>
                 </div>
             </div>
 
@@ -128,8 +164,14 @@
                     <div id="s3-text-block-8" class="text-block"><h3>Cierre</h3><p>El cierre de la celebración.<br><strong>Cierre:</strong> El Quincenario culmina con las solemnes vísperas el 15 de septiembre, las fiestas patronales el 16 de septiembre y una eucaristía de acción de gracias, lideradas por el Obispo de la diócesis de Ipiales. El territorio cotidiano se transforma en territorio de lo sacro y de veneración.</p></div>
                 </div>
                 <div class="slide-navigation-buttons">
-                    <button class="slide-prev-button" data-prev-slide-id="slide2" data-prev-animation="videos/slide2-animation.mp4">← Anterior</button>
-                    <button class="slide-next-button" data-next-slide-id="slide4" data-next-animation="videos/slide4-animation.mp4">Siguiente →</button>
+                    <button class="slide-prev-button" 
+                            data-prev-slide-id="slide2" 
+                            data-prev-animation="videos/slide2-animation.mp4"
+                            data-transition-video="videos/slide3-to-slide2-transition.mp4">← Anterior</button>
+                    <button class="slide-next-button" 
+                            data-next-slide-id="slide4" 
+                            data-next-animation="videos/slide4-animation.mp4"
+                            data-transition-video="videos/slide3-to-slide4-transition.mp4">Siguiente →</button>
                 </div>
             </div>
 
@@ -152,7 +194,10 @@
                     <div id="s4-text-block-6" class="text-block"><h3>Velas y su Ritual</h3><p>Símbolos de luz, esperanza y oración. Representan la presencia divina, iluminación espiritual y purificación. Al encenderlas y dejarlas en el santuario, las personas expresan intenciones, peticiones o agradecimientos a Dios y a la Virgen. Existe un pequeño ritual de frotar la vela en el cuerpo o poner nombres, creyendo que la Virgen "se lleva las enfermedades". La intensidad de la llama o las formas de la cera derretida son interpretadas como señales de la recepción de la petición o la presencia de ángeles. El acto simboliza la continuidad de la oración más allá de la presencia física del fiel.</p></div>
                 </div>
                 <div class="slide-navigation-buttons">
-                    <button class="slide-prev-button" data-prev-slide-id="slide3" data-prev-animation="videos/slide3-animation.mp4">← Anterior</button>
+                    <button class="slide-prev-button" 
+                            data-prev-slide-id="slide3" 
+                            data-prev-animation="videos/slide3-animation.mp4"
+                            data-transition-video="videos/slide4-to-slide3-transition.mp4">← Anterior</button>
                     <span></span> 
                 </div>
             </div>
@@ -184,7 +229,6 @@
                     </div>
                 </div>
                  <div class="slide-navigation-buttons">
-                    <!-- No hay botón "Anterior" ni "Siguiente" para slide 5 según especificación -->
                     <span></span> 
                     <span></span>
                 </div>

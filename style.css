@@ -26,25 +26,30 @@ html, body {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1;
+    z-index: 1; 
     display: none;
     background-color: #000; 
 }
 .video-layer.active {
     display: block;
 }
-.fullscreen-video { /* Video del menú y base para los buffers de slide */
+
+#menu-video-layer { z-index: 1; }
+#transition-video-layer { z-index: 2; } 
+#slide-video-layer { z-index: 3; }    
+
+
+.fullscreen-video { 
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: filter 0.5s ease-in-out; /* Solo mantenemos la transición del blur */
+    transition: filter 0.5s ease-in-out; 
 }
 .fullscreen-video.blurred {
     filter: blur(10px);
 }
 
-/* Para el doble buffer en slides */
-.slide-video-buffer {
+.slide-video-buffer, #transition-video-element {
     position: absolute;
     top: 0;
     left: 0;
@@ -54,7 +59,7 @@ html, body {
     opacity: 0; 
     z-index: 5; 
 }
-.slide-video-buffer.visible {
+.slide-video-buffer.visible, #transition-video-element.visible { 
     opacity: 1;
     z-index: 10; 
 }
@@ -67,7 +72,7 @@ html, body {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 2;
+    z-index: 100; 
     display: none;
     overflow: hidden; 
 }

@@ -1,16 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Elementos del DOM ---
     const menuVideoElement = document.getElementById('menu-video-element');
-    // SLIDE VIDEOS - DOBLE BUFFER
+    const transitionVideoElement = document.getElementById('transition-video-element'); 
     const slideVideoBuffer1 = document.getElementById('slide-video-buffer-1');
     const slideVideoBuffer2 = document.getElementById('slide-video-buffer-2');
-    let currentSlideVideoElement = slideVideoBuffer1; // El que está actualmente visible o a punto de serlo
-    let nextSlideVideoElement = slideVideoBuffer2;    // El que se usará para precargar el siguiente
+    let currentSlideVideoElement = slideVideoBuffer1; 
+    let nextSlideVideoElement = slideVideoBuffer2;    
 
     const menuVideoLayer = document.getElementById('menu-video-layer');
-    const slideVideoLayer = document.getElementById('slide-video-layer'); // Contenedor de los buffers
+    const transitionVideoLayer = document.getElementById('transition-video-layer'); 
+    const slideVideoLayer = document.getElementById('slide-video-layer'); 
 
-    // ... (resto de las declaraciones de elementos DOM sin cambios)
     const introLayer = document.getElementById('intro-layer');
     const introContentWrapper = document.getElementById('intro-content-wrapper');
     const startExperienceButton = document.getElementById('start-experience-button');
@@ -26,18 +26,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const menuInfoTextBlock = document.getElementById('menu-info-text-block');
 
     // --- Variables de Estado ---
-    let currentVisibleVideo = menuVideoElement; // Video principal de la escena (menú o slide)
+    let currentVisibleVideo = menuVideoElement; 
     let currentUiLayer = introLayer;
     let pendingAction = null;
     let isTransitioning = false; 
     let activeCircleButton = null;   
     let activeTextBlock = null;    
     let currentSlideId = null;     
+    let targetSlideAfterTransition = null; 
 
     // --- Funciones de Video y Transición ---
-    async function playVideo(videoElement) { 
+    async function playVideo(videoElement, loop = false) { 
         if (videoElement) {
             videoElement.currentTime = 0;
+            videoElement.loop = loop;
             try { 
                 await videoElement.play(); 
             } 
@@ -50,12 +52,15 @@ document.addEventListener('DOMContentLoaded', () => {
             videoElement.pause();
         }
     }
-
-    // Función para preparar un video específico (cargar src y esperar a que esté listo)
+    
     async function prepareVideoElement(videoEl, src) {
         return new Promise(async (resolve, reject) => {
-            if (!videoEl) { reject(new Error("prepareVideoElement: videoEl es null")); return; }
-            if (!src) { reject(new Error("prepareVideoElement: src es null")); return; }
+            if (!videoEl) { reject(new Error(`prepareVideoElement: videoEl es null (intentando cargar ${src})`)); return; }
+            if (!src) { 
+                console.warn(`[prepareVideoElement] src es null para ${videoEl.id}. Resolviendo.`);
+                resolve(); 
+                return; 
+            }
 
             let sourceTag = videoEl.querySelector('source');
             if (!sourceTag) {
@@ -68,11 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const newFullSrc = new URL(src, document.baseURI).href;
 
             if (currentFullSrc !== newFullSrc || videoEl.readyState < HTMLMediaElement.HAVE_METADATA) {
-                console.log(`[prepareVideoElement] Estableciendo src de ${videoEl.id} a ${src}`);
                 sourceTag.setAttribute('src', src);
-                videoEl.load(); // Indispensable después de cambiar el src
-            } else {
-                 console.log(`[prepareVideoElement] ${videoEl.id} ya tiene el src ${src} y parece cargado.`);
+                videoEl.load(); 
             }
             
             try {
@@ -84,15 +86,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
     async function ensureVideoCanPlay(videoElement) { 
         return new Promise((resolve, reject) => {
-            // ... (lógica de ensureVideoCanPlay sin cambios, ya era robusta)
             if (!videoElement) { console.error("[ensureVideoCanPlay] Video element es null"); reject(new Error("Video element es null")); return; }
             const sourceEl = videoElement.querySelector('source');
-            const videoSrc = (sourceEl && sourceEl.src) ? new URL(sourceEl.src, document.baseURI).href : videoElement.currentSrc;
-
-            if (!videoSrc) {
+            let videoSrc = videoElement.currentSrc; 
+            if (sourceEl && sourceEl.src) { 
+                videoSrc = new URL(sourceEl.src, document.baseURI).href;
+            }
+            
+            if (!videoSrc && !(videoElement.getAttribute('src'))) { 
                 console.warn(`[ensureVideoCanPlay] ${videoElement.id} no tiene src válido. Resolviendo sin esperar.`);
                 resolve(); 
                 return;
@@ -106,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     resolve(); 
                 };
                 const errorHandler = (e) => { 
-                    console.error(`[ensureVideoCanPlay] Error cargando ${videoElement.id} (src: ${videoSrc}):`, videoElement.error, e);
+                    console.error(`[ensureVideoCanPlay] Error cargando ${videoElement.id} (src: ${videoSrc || videoElement.getAttribute('src')}):`, videoElement.error, e);
                     videoElement.removeEventListener('canplaythrough', canPlayThroughHandler); 
                     videoElement.removeEventListener('error', errorHandler);
                     reject(videoElement.error || e); 
@@ -114,104 +117,118 @@ document.addEventListener('DOMContentLoaded', () => {
                 videoElement.addEventListener('canplaythrough', canPlayThroughHandler, { once: true });
                 videoElement.addEventListener('error', errorHandler, { once: true });
                 
-                if (videoElement.networkState === HTMLMediaElement.NETWORK_NO_SOURCE && videoSrc) {
-                     videoElement.load();
-                } else if (videoElement.readyState < HTMLMediaElement.HAVE_METADATA && videoSrc) {
-                     videoElement.load();
-                } else if (videoElement.networkState === HTMLMediaElement.NETWORK_IDLE && videoElement.readyState < HTMLMediaElement.HAVE_ENOUGH_DATA && videoSrc){
+                if (videoSrc && (videoElement.networkState === HTMLMediaElement.NETWORK_NO_SOURCE || videoElement.readyState < HTMLMediaElement.HAVE_METADATA || videoElement.networkState === HTMLMediaElement.NETWORK_IDLE)) {
                      videoElement.load();
                 }
             }
         });
     }
 
-    function onVideoEnded() { 
-        const endedVideoId = currentVisibleVideo ? currentVisibleVideo.id : 'N/A';
-        if (pendingAction) {
-             // Si el video que terminó es el currentSlideVideoElement, y la acción es un SLIDE,
-            // es la transición del doble buffer.
-            if (currentVisibleVideo === currentSlideVideoElement && pendingAction.type === 'SLIDE') {
-                console.log(`[onVideoEnded] ${endedVideoId} (slide) terminó. Swapping buffers para ${pendingAction.animationSrc}`);
-                swapAndPlayNextSlideVideo();
-            } else {
-                // Transición normal (ej. menú a slide, slide a menú, intro a menú)
-                console.log(`[onVideoEnded] ${endedVideoId} (no slide o no buffer swap) terminó. Ejecutando acción pendiente: ${pendingAction.type}`);
-                executePendingAction();
+    async function onVideoEnded() { 
+        const endedVideo = this;
+        console.log(`[onVideoEnded] Video ${endedVideo.id} finalizado. pendingAction:`, pendingAction ? pendingAction.type : "null");
+
+        if (!pendingAction) {
+            console.warn(`[onVideoEnded] ${endedVideo.id} terminó, pero no hay acción pendiente.`);
+            if (!endedVideo.loop && endedVideo === currentVisibleVideo && !isTransitioning) {
+                 endedVideo.loop = true;
+                 playVideo(endedVideo, true);
             }
-        } else if (currentVisibleVideo && !currentVisibleVideo.loop && 
-                   (currentVisibleVideo === slideVideoBuffer1 || currentVisibleVideo === slideVideoBuffer2)) {
-            // Si un video de slide (que no debería estar en loop para la transición) termina y NO hay pendingAction
-            // esto podría indicar un problema o que simplemente se dejó un video sin loop.
-            // Podríamos reiniciarlo o simplemente no hacer nada.
-            console.warn(`[onVideoEnded] ${endedVideoId} (slide) terminó sin acción pendiente y sin loop. Considerar comportamiento.`);
+            return;
+        }
+
+        const actionToExecute = pendingAction; 
+        pendingAction = null; 
+
+        try {
+            if (endedVideo === transitionVideoElement) {
+                transitionVideoLayer.classList.remove('active');
+                transitionVideoElement.classList.remove('visible');
+                pauseVideo(transitionVideoElement);
+
+                if (actionToExecute.type === 'PLAY_SLIDE_AFTER_ENTRY_TRANSITION' && targetSlideAfterTransition) {
+                    await prepareAndShowTargetSlide(targetSlideAfterTransition.slideId, targetSlideAfterTransition.slideAnimation);
+                    targetSlideAfterTransition = null; 
+                } else if (actionToExecute.type === 'SHOW_MENU_AFTER_EXIT_TRANSITION') {
+                    actuallyShowMenuUi();
+                } else if (actionToExecute.type === 'PLAY_SLIDE_AFTER_SLIDE_TRANSITION' && targetSlideAfterTransition) {
+                    // Nueva lógica para después de transición slide-a-slide
+                    await prepareAndShowTargetSlide(targetSlideAfterTransition.slideId, targetSlideAfterTransition.slideAnimation);
+                    targetSlideAfterTransition = null;
+                } else {
+                    console.warn(`[onVideoEnded] Video de transición terminó, pero la acción pendiente (${actionToExecute.type}) no coincide o targetSlide es nulo.`);
+                    setControlsWaitingState(false); 
+                }
+            } else if ((endedVideo === slideVideoBuffer1 || endedVideo === slideVideoBuffer2) && actionToExecute.type === 'SLIDE_TO_SLIDE_NO_TRANSITION_BUFFER_SWAP') {
+                // Este caso es para cuando se usa el doble buffer sin un video de transición intermedio.
+                await swapAndPlayNextSlideVideo(actionToExecute); 
+            } else {
+                await executeStandardPendingAction(actionToExecute); 
+            }
+        } catch (error) {
+            console.error(`[onVideoEnded] Error durante la ejecución post-video-ended:`, error);
+            setControlsWaitingState(false); 
         }
     }
     
-    // Nueva función para manejar el cambio de buffers de video de slide
-    async function swapAndPlayNextSlideVideo() {
-        if (!pendingAction || pendingAction.type !== 'SLIDE') {
-            console.error("swapAndPlayNextSlideVideo llamado sin acción de SLIDE válida.");
-            setControlsWaitingState(false); // Desbloquear UI
-            return;
-        }
-        
-        const action = pendingAction;
-        pendingAction = null; // Consumir la acción
-
-        // El 'nextSlideVideoElement' ya debería estar preparado con el nuevo video
-        // gracias a la lógica en 'transitionToState' cuando se va a un SLIDE.
-
-        // Ocultar el video actual, mostrar el siguiente
+    async function swapAndPlayNextSlideVideo(action) { 
         currentSlideVideoElement.classList.remove('visible');
-        currentSlideVideoElement.loop = false; // Asegurar que no haga loop si se pausa
+        currentSlideVideoElement.loop = false; 
         pauseVideo(currentSlideVideoElement);
 
         nextSlideVideoElement.classList.add('visible');
-        nextSlideVideoElement.loop = true; // El nuevo video principal sí debe loopear
+        nextSlideVideoElement.loop = true; 
         
-        currentVisibleVideo = nextSlideVideoElement; // Actualizar el puntero global
-        playVideo(currentVisibleVideo);
+        currentVisibleVideo = nextSlideVideoElement; 
+        await playVideo(currentVisibleVideo, true); 
 
-        // Intercambiar roles de los buffers
         const temp = currentSlideVideoElement;
         currentSlideVideoElement = nextSlideVideoElement;
         nextSlideVideoElement = temp;
 
-        // Actualizar la UI del slide
-        actuallyShowSlideUi(action.slideId, false); // false para no tocar los videos
+        actuallyShowSlideUi(action.slideId, false); 
     }
 
-
-    async function executePendingAction() { // Ahora se usa para transiciones que NO son slide-a-slide
-        if (!pendingAction) return;
-        const action = pendingAction;
-        
-        let targetVideoElementForUiChange = menuVideoElement; 
-
-        // Si la acción es ir a un SLIDE (desde menú o intro), preparamos el primer buffer de slide
-        if (action.type === 'SLIDE') {
-            targetVideoElementForUiChange = currentSlideVideoElement; // El que se va a mostrar
-            try {
-                await prepareVideoElement(currentSlideVideoElement, action.animationSrc);
-                console.log(`[executePendingAction] Buffer ${currentSlideVideoElement.id} preparado para ${action.animationSrc}`);
+    async function executeStandardPendingAction(action) { 
+        let videoToPrepare = null;
+        if (action.type === 'INTRO_TO_MENU' || action.type === 'MENU_TO_INTRO' || action.type === 'SLIDE_TO_MENU_NO_TRANSITION') {
+            videoToPrepare = menuVideoElement;
+        } else if (action.type === 'MENU_TO_SLIDE_NO_TRANSITION') {
+            videoToPrepare = currentSlideVideoElement; 
+             try {
+                await prepareVideoElement(videoToPrepare, action.slideAnimation);
             } catch (error) {
-                console.error(`[executePendingAction] Error preparando ${currentSlideVideoElement.id} para SLIDE:`, error);
-                pendingAction = null; 
-                setControlsWaitingState(false);
-                return; // No continuar si el video inicial del slide no se puede preparar
+                console.error(`Error preparando video para MENU_TO_SLIDE_NO_TRANSITION:`, error);
+                setControlsWaitingState(false); 
+                return;
             }
         }
-        
-        pendingAction = null; // Consumir acción
 
+        if (videoToPrepare) {
+            try {
+                await ensureVideoCanPlay(videoToPrepare);
+            } catch(e) {
+                console.error(`Error en ensureVideoCanPlay para executeStandardPendingAction:`, e);
+            }
+        }
+                
         if (action.type === 'INTRO_TO_MENU') actuallyShowMenuUi();
         else if (action.type === 'MENU_TO_INTRO') actuallyShowIntroUi();
-        else if (action.type === 'MENU') actuallyShowMenuUi();
-        else if (action.type === 'SLIDE') actuallyShowSlideUi(action.slideId, true); // true para manejar el video inicial
+        else if (action.type === 'SLIDE_TO_MENU_NO_TRANSITION') actuallyShowMenuUi();
+        else if (action.type === 'MENU_TO_SLIDE_NO_TRANSITION') actuallyShowSlideUi(action.slideId, true);
+    }
+
+    async function prepareAndShowTargetSlide(slideId, slideAnimation) {
+        try {
+            await prepareVideoElement(currentSlideVideoElement, slideAnimation);
+            actuallyShowSlideUi(slideId, true); 
+        } catch (error) {
+            console.error("Error al preparar y mostrar el slide de destino:", error);
+            setControlsWaitingState(false); 
+        }
     }
 
     function setControlsWaitingState(waiting) {
-        // ... (sin cambios)
         isTransitioning = waiting;
         const mainControls = [
             ...allMenuButtons, 
@@ -234,16 +251,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function transitionToState(actionAfterCurrentVideoEnds) { 
-        // ... (lógica de transitionToState, pero ajustada para el doble buffer)
-        if (isTransitioning && pendingAction && 
-            pendingAction.type === actionAfterCurrentVideoEnds.type && 
-            (pendingAction.animationSrc === actionAfterCurrentVideoEnds.animationSrc || !actionAfterCurrentVideoEnds.animationSrc) ) {
-            return; 
+    async function transitionToState(action) { 
+        console.log(`[transitionToState] Solicitada acción: ${action.type}`, action);
+        if (isTransitioning && pendingAction) {
+            if (pendingAction.type === action.type && 
+                (pendingAction.animationSrc === action.animationSrc || 
+                 pendingAction.entryTransition === action.entryTransition ||
+                 pendingAction.exitTransition === action.exitTransition ||
+                 pendingAction.slideTransitionVideo === action.slideTransitionVideo)) {
+                console.warn("[transitionToState] Transición idéntica ya en curso o pendiente. Ignorando.");
+                return; 
+            }
+            console.warn("[transitionToState] Transición ya en curso con acción PENDIENTE DIFERENTE. La nueva acción podría no procesarse como se espera.");
+            // Considerar si cancelar la acción pendiente actual o encolar. Por ahora, la nueva acción puede ser ignorada si isTransitioning es true.
+             return; // Evitar iniciar una nueva transición si ya hay una.
         }
         
         setControlsWaitingState(true); 
-        pendingAction = actionAfterCurrentVideoEnds;
+        pendingAction = action; 
 
         if (menuInfoTextBlock.classList.contains('visible')) {
             menuInfoTextBlock.classList.remove('visible');
@@ -251,50 +276,95 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         let videoToWaitFor = currentVisibleVideo; 
+        let videoToPlayAfterInitialEnd = null; 
+        let loopForVideoAfterInitialEnd = false;
+        let subsequentPendingAction = null; 
 
-        // Si la transición es a un SLIDE y ya estamos en un SLIDE (slide-a-slide)
-        if (actionAfterCurrentVideoEnds.type === 'SLIDE' && currentUiLayer === uiOverlayLayer && slideVideoLayer.classList.contains('active')) {
-            console.log(`[transitionToState] Slide-a-Slide detectado. Preparando nextSlideVideoElement (${nextSlideVideoElement.id}) para ${actionAfterCurrentVideoEnds.animationSrc}`);
-            videoToWaitFor = currentSlideVideoElement; // El video actual del slide debe terminar
-            try {
-                // Precargar el *siguiente* video en el buffer que no está visible
-                await prepareVideoElement(nextSlideVideoElement, actionAfterCurrentVideoEnds.animationSrc);
-                console.log(`[transitionToState] ${nextSlideVideoElement.id} precargado con ${actionAfterCurrentVideoEnds.animationSrc}`);
-                // El evento 'ended' del videoToWaitFor (currentSlideVideoElement) disparará swapAndPlayNextSlideVideo
-            } catch (error) {
-                console.error(`[transitionToState] Error precargando ${nextSlideVideoElement.id}:`, error);
-                // Si falla la precarga, ¿qué hacer? Podríamos intentar una transición normal.
-                // Por ahora, la transición se bloqueará si la precarga falla.
-                setControlsWaitingState(false);
-                pendingAction = null;
-                return;
-            }
-        } else if (actionAfterCurrentVideoEnds.type === 'MENU_TO_INTRO') {
-            videoToWaitFor = menuVideoElement;
-        } else if (actionAfterCurrentVideoEnds.type === 'INTRO_TO_MENU') {
-             videoToWaitFor = menuVideoElement;
+        if (action.type === 'MENU_TO_SLIDE_WITH_TRANSITION') {
+            videoToWaitFor = menuVideoElement; 
+            videoToPlayAfterInitialEnd = transitionVideoElement;
+            targetSlideAfterTransition = { slideId: action.slideId, slideAnimation: action.slideAnimation };
+            await prepareVideoElement(transitionVideoElement, action.entryTransition);
+            loopForVideoAfterInitialEnd = false; 
+            subsequentPendingAction = { type: 'PLAY_SLIDE_AFTER_ENTRY_TRANSITION' };
+        } else if (action.type === 'SLIDE_TO_MENU_WITH_TRANSITION') {
+            videoToWaitFor = currentSlideVideoElement; 
+            videoToPlayAfterInitialEnd = transitionVideoElement;
+            await prepareVideoElement(transitionVideoElement, action.exitTransition);
+            loopForVideoAfterInitialEnd = false;
+            subsequentPendingAction = { type: 'SHOW_MENU_AFTER_EXIT_TRANSITION' };
+        } else if (action.type === 'SLIDE_TO_SLIDE_WITH_TRANSITION') { // NUEVO TIPO DE ACCIÓN
+            videoToWaitFor = currentSlideVideoElement;
+            videoToPlayAfterInitialEnd = transitionVideoElement;
+            targetSlideAfterTransition = { slideId: action.nextSlideId, slideAnimation: action.nextSlideAnimation };
+            await prepareVideoElement(transitionVideoElement, action.slideTransitionVideo);
+            loopForVideoAfterInitialEnd = false;
+            subsequentPendingAction = { type: 'PLAY_SLIDE_AFTER_SLIDE_TRANSITION' };
         }
-        // Para MENU a SLIDE, el videoToWaitFor es menuVideoElement (currentVisibleVideo)
-        // Para SLIDE a MENU, el videoToWaitFor es currentSlideVideoElement (currentVisibleVideo)
-
+        // SLIDE_TO_SLIDE_NO_TRANSITION_BUFFER_SWAP (antes SLIDE_TO_SLIDE_VIA_BUFFER) ya no usa videoToPlayAfterInitialEnd aquí,
+        // sino que precarga nextSlideVideoElement y el swap ocurre en onVideoEnded del currentSlideVideoElement.
+        else if (action.type === 'SLIDE_TO_SLIDE_NO_TRANSITION_BUFFER_SWAP') { 
+            videoToWaitFor = currentSlideVideoElement;
+            await prepareVideoElement(nextSlideVideoElement, action.animationSrc);
+            // pendingAction se mantiene como SLIDE_TO_SLIDE_NO_TRANSITION_BUFFER_SWAP
+        } else { 
+             if (action.type === 'MENU_TO_INTRO') videoToWaitFor = menuVideoElement;
+             else if (action.type === 'INTRO_TO_MENU') videoToWaitFor = menuVideoElement;
+             else if (action.type === 'SLIDE_TO_MENU_NO_TRANSITION') videoToWaitFor = currentSlideVideoElement;
+        }
         
-        if (videoToWaitFor && videoToWaitFor.currentSrc && videoToWaitFor.networkState !== HTMLMediaElement.NETWORK_NO_SOURCE) { 
-            console.log(`[transitionToState] Esperando 'ended' de ${videoToWaitFor.id}`);
-            if (videoToWaitFor.loop) videoToWaitFor.loop = false;
+        if (videoToWaitFor && (videoToWaitFor.currentSrc || (videoToWaitFor.querySelector('source') && videoToWaitFor.querySelector('source').src)) ) { 
+            if (videoToWaitFor.loop) videoToWaitFor.loop = false; 
             videoToWaitFor.removeEventListener('ended', onVideoEnded); 
-            videoToWaitFor.addEventListener('ended', onVideoEnded, { once: true });
+            videoToWaitFor.addEventListener('ended', 
+                async function handleInitialEnd() { 
+                    if (videoToPlayAfterInitialEnd) {
+                        if (subsequentPendingAction) {
+                            pendingAction = subsequentPendingAction; 
+                        }
+                        menuVideoLayer.classList.remove('active');
+                        slideVideoLayer.classList.remove('active');
+                        pauseVideo(menuVideoElement); 
+                        pauseVideo(slideVideoBuffer1);
+                        pauseVideo(slideVideoBuffer2);
+                        
+                        transitionVideoLayer.classList.add('active');
+                        transitionVideoElement.classList.add('visible');
+                        
+                        transitionVideoElement.removeEventListener('ended', onVideoEnded); 
+                        transitionVideoElement.addEventListener('ended', onVideoEnded, { once: true });
+                        await playVideo(videoToPlayAfterInitialEnd, loopForVideoAfterInitialEnd); 
+                    } else {
+                        onVideoEnded.call(this); 
+                    }
+                }, 
+            { once: true });
             
             if (videoToWaitFor.paused || videoToWaitFor.ended || 
                 (videoToWaitFor.duration > 0 && videoToWaitFor.currentTime >= videoToWaitFor.duration - 0.1)) { 
-                onVideoEnded();
+                videoToWaitFor.dispatchEvent(new Event('ended')); 
             }
         } else { 
-            onVideoEnded(); 
+             if (videoToPlayAfterInitialEnd) { 
+                 if (subsequentPendingAction) {
+                    pendingAction = subsequentPendingAction;
+                 }
+                menuVideoLayer.classList.remove('active');
+                slideVideoLayer.classList.remove('active');
+                transitionVideoLayer.classList.add('active');
+                transitionVideoElement.classList.add('visible');
+                
+                transitionVideoElement.removeEventListener('ended', onVideoEnded); 
+                transitionVideoElement.addEventListener('ended', onVideoEnded, { once: true });
+                await playVideo(videoToPlayAfterInitialEnd, loopForVideoAfterInitialEnd);
+            } else {
+                onVideoEnded.call(videoToWaitFor || {}); 
+            }
         }
     }
     
-    // ... (hideAllTextBlocksForCurrentSlide y listeners de botones círculo y menú info sin cambios)
     function hideAllTextBlocksForCurrentSlide() {
+        // ... (Sin cambios)
         if (!currentSlideId && !activeTextBlock && !activeCircleButton) return; 
         let slideContentToClean = null;
         if (currentSlideId) {
@@ -312,6 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     document.querySelectorAll('#slide-interactive-elements .circle-button').forEach(button => {
+        // ... (Sin cambios)
         button.addEventListener('click', () => {
             if (isTransitioning || button.classList.contains('waiting')) {
                  return;
@@ -347,12 +418,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     menuInfoButton.addEventListener('click', () => {
+        // ... (Sin cambios)
         if (isTransitioning || menuInfoButton.classList.contains('waiting')) return;
         menuInfoTextBlock.classList.toggle('visible');
         menuInfoButton.classList.toggle('active', menuInfoTextBlock.classList.contains('visible'));
     });
 
     function ensureNoActiveSlideElements() {
+        // ... (Sin cambios)
         hideAllTextBlocksForCurrentSlide(); 
         document.querySelectorAll('.slide-specific-content.active').forEach(ssc => ssc.classList.remove('active'));
         if (slideInteractiveElements) slideInteractiveElements.style.display = 'none';
@@ -361,23 +434,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function actuallyShowIntroUi() {
-        // ... (sin cambios respecto a la versión anterior)
+        // ... (Sin cambios)
         currentUiLayer.classList.remove('active');
         introLayer.classList.add('active');
         currentUiLayer = introLayer;
 
-        slideVideoLayer.classList.remove('active'); // Ocultar capa de slides
+        slideVideoLayer.classList.remove('active'); 
+        transitionVideoLayer.classList.remove('active');
         pauseVideo(slideVideoBuffer1); 
         pauseVideo(slideVideoBuffer2);
-        slideVideoBuffer1.classList.remove('visible'); // Asegurar que buffers no estén visibles
+        pauseVideo(transitionVideoElement);
+        slideVideoBuffer1.classList.remove('visible');
         slideVideoBuffer2.classList.remove('visible');
-
+        transitionVideoElement.classList.remove('visible');
 
         menuVideoLayer.classList.add('active');
         menuVideoElement.classList.add('blurred'); 
-        currentVisibleVideo = menuVideoElement; // El video de menú es el principal ahora
-        currentVisibleVideo.loop = true; 
-        playVideo(currentVisibleVideo);
+        currentVisibleVideo = menuVideoElement; 
+        playVideo(currentVisibleVideo, true);
         
         uiOverlayLayer.classList.remove('active'); 
         ensureNoActiveSlideElements(); 
@@ -393,22 +467,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function actuallyShowMenuUi() {
-        // ... (sin cambios respecto a la versión anterior)
+        // ... (Sin cambios)
         currentUiLayer.classList.remove('active');
         uiOverlayLayer.classList.add('active');    
         currentUiLayer = uiOverlayLayer;
 
         slideVideoLayer.classList.remove('active');
+        transitionVideoLayer.classList.remove('active');
         pauseVideo(slideVideoBuffer1); 
         pauseVideo(slideVideoBuffer2);
+        pauseVideo(transitionVideoElement);
         slideVideoBuffer1.classList.remove('visible');
         slideVideoBuffer2.classList.remove('visible');
+        transitionVideoElement.classList.remove('visible');
 
         menuVideoElement.classList.remove('blurred'); 
         menuVideoLayer.classList.add('active');
         currentVisibleVideo = menuVideoElement;
-        currentVisibleVideo.loop = true; 
-        playVideo(currentVisibleVideo);
+        playVideo(currentVisibleVideo, true);
         
         menuButtonsArea.style.display = 'flex'; 
         menuInfoButton.style.display = 'block'; 
@@ -421,8 +497,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function actuallyShowSlideUi(slideId, isInitialSlideTransition = true) {
-        // ... (ajustado para doble buffer)
-        if (currentSlideId && currentSlideId !== slideId && isInitialSlideTransition) { // Limpiar solo si es una transición inicial, no un swap de buffer
+        // ... (Sin cambios)
+        if (currentSlideId && currentSlideId !== slideId && isInitialSlideTransition) { 
             hideAllTextBlocksForCurrentSlide(); 
             const prevSlideContent = document.querySelector(`.slide-specific-content[data-content-for-slide="${currentSlideId}"]`);
             if (prevSlideContent) prevSlideContent.classList.remove('active');
@@ -433,25 +509,22 @@ document.addEventListener('DOMContentLoaded', () => {
         uiOverlayLayer.classList.add('active');    
         currentUiLayer = uiOverlayLayer;
 
-        menuVideoLayer.classList.remove('active'); // Ocultar capa de menú
+        menuVideoLayer.classList.remove('active'); 
+        transitionVideoLayer.classList.remove('active'); 
         pauseVideo(menuVideoElement);
+        pauseVideo(transitionVideoElement);
+        transitionVideoElement.classList.remove('visible');
         
-        slideVideoLayer.classList.add('active'); // Activar capa de videos de slide
+        slideVideoLayer.classList.add('active'); 
         
-        if (isInitialSlideTransition) { // Si es la primera vez que entramos a este slide (o desde menú/intro)
-            // currentSlideVideoElement ya fue preparado y es el que se va a reproducir
-            // nextSlideVideoElement está listo para la siguiente precarga
-            slideVideoBuffer1.classList.remove('visible'); // Ocultar ambos por si acaso
+        if (isInitialSlideTransition) { 
+            slideVideoBuffer1.classList.remove('visible'); 
             slideVideoBuffer2.classList.remove('visible');
-            
-            currentSlideVideoElement.classList.add('visible'); // Mostrar el buffer actual
-            currentSlideVideoElement.loop = true;
-            currentVisibleVideo = currentSlideVideoElement; // Actualizar puntero global
-            playVideo(currentVisibleVideo);
+            currentSlideVideoElement.classList.add('visible'); 
+            currentVisibleVideo = currentSlideVideoElement; 
+            playVideo(currentVisibleVideo, true); 
         }
-        // Si !isInitialSlideTransition, significa que es un swap de buffer,
-        // y el video ya se está manejando/reproduciendo por swapAndPlayNextSlideVideo
-
+        
         menuButtonsArea.style.display = 'none'; 
         menuInfoButton.style.display = 'none'; 
         menuInfoTextBlock.classList.remove('visible'); 
@@ -471,7 +544,7 @@ document.addEventListener('DOMContentLoaded', () => {
             slideInteractiveElements.style.display = 'none'; 
         }
         
-        if (isInitialSlideTransition) hideAllTextBlocksForCurrentSlide(); // Limpiar textos solo en transición inicial
+        if (isInitialSlideTransition) hideAllTextBlocksForCurrentSlide(); 
 
         uiOverlayLayer.style.justifyContent = 'flex-start'; 
         uiOverlayLayer.style.alignItems = 'flex-start'; 
@@ -479,7 +552,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Event Listeners Principales ---
-    // ... (sin cambios respecto a la versión anterior)
     startExperienceButton.addEventListener('click', () => {
         if (isTransitioning || startExperienceButton.classList.contains('waiting')) return;
         transitionToState({ type: 'INTRO_TO_MENU' });
@@ -488,20 +560,38 @@ document.addEventListener('DOMContentLoaded', () => {
     allMenuButtons.forEach(button => {
         button.addEventListener('click', () => {
             if (isTransitioning || button.classList.contains('waiting')) return;
-            const animationPath = button.getAttribute('data-animation');
-            const slideId = button.getAttribute('data-slide-id'); 
-            if (animationPath) {
-                transitionToState({ type: 'SLIDE', animationSrc: animationPath, slideId: slideId });
+            const slideId = button.dataset.slideId;
+            const slideAnimation = button.dataset.animation; 
+            const entryTransition = button.dataset.entryTransition; 
+
+            if (slideId && slideAnimation && entryTransition) {
+                transitionToState({ 
+                    type: 'MENU_TO_SLIDE_WITH_TRANSITION', 
+                    slideId: slideId,
+                    slideAnimation: slideAnimation, 
+                    entryTransition: entryTransition 
+                });
+            } else if (slideId && slideAnimation) { 
+                transitionToState({ type: 'MENU_TO_SLIDE_NO_TRANSITION', slideId: slideId, slideAnimation: slideAnimation });
             }
         });
     });
 
     slideBackToMenuButton.addEventListener('click', () => {
         if (isTransitioning || slideBackToMenuButton.classList.contains('waiting')) return;
-        ensureNoActiveSlideElements(); 
-        // Al volver al menú, el video de slide actual (currentSlideVideoElement) es el que debe terminar.
-        currentVisibleVideo = currentSlideVideoElement; 
-        transitionToState({ type: 'MENU' });
+        
+        const menuButtonForCurrentSlide = document.querySelector(`.menu-button[data-slide-id="${currentSlideId}"]`);
+        const exitTransition = menuButtonForCurrentSlide ? menuButtonForCurrentSlide.dataset.exitTransition : null;
+        
+        if (exitTransition) {
+            transitionToState({ 
+                type: 'SLIDE_TO_MENU_WITH_TRANSITION', 
+                exitTransition: exitTransition 
+            });
+        } else { 
+            currentVisibleVideo = currentSlideVideoElement; 
+            transitionToState({ type: 'SLIDE_TO_MENU_NO_TRANSITION' });
+        }
     });
 
     menuBackToIntroButton.addEventListener('click', () => {
@@ -513,9 +603,18 @@ document.addEventListener('DOMContentLoaded', () => {
         button.addEventListener('click', () => {
             if (isTransitioning || button.classList.contains('waiting')) return;
             const nextSlideId = button.dataset.nextSlideId;
-            const nextAnimationPath = button.dataset.nextAnimation;
-            if (nextSlideId && nextAnimationPath) {
-                transitionToState({ type: 'SLIDE', animationSrc: nextAnimationPath, slideId: nextSlideId });
+            const nextAnimationPath = button.dataset.nextAnimation; // Video de fondo del siguiente slide
+            const slideTransitionVideo = button.dataset.transitionVideo; // Video de transición slide-a-slide
+
+            if (nextSlideId && nextAnimationPath && slideTransitionVideo) {
+                transitionToState({ 
+                    type: 'SLIDE_TO_SLIDE_WITH_TRANSITION', 
+                    nextSlideId: nextSlideId,
+                    nextSlideAnimation: nextAnimationPath,
+                    slideTransitionVideo: slideTransitionVideo
+                });
+            } else if (nextSlideId && nextAnimationPath) { // Fallback sin video de transición inter-slide
+                transitionToState({ type: 'SLIDE_TO_SLIDE_NO_TRANSITION_BUFFER_SWAP', animationSrc: nextAnimationPath, slideId: nextSlideId });
             }
         });
     });
@@ -524,19 +623,28 @@ document.addEventListener('DOMContentLoaded', () => {
         button.addEventListener('click', () => {
             if (isTransitioning || button.classList.contains('waiting')) return;
             const prevSlideId = button.dataset.prevSlideId;
-            const prevAnimationPath = button.dataset.prevAnimation;
-            if (prevSlideId && prevAnimationPath) {
-                transitionToState({ type: 'SLIDE', animationSrc: prevAnimationPath, slideId: prevSlideId });
+            const prevAnimationPath = button.dataset.prevAnimation; // Video de fondo del slide anterior
+            const slideTransitionVideo = button.dataset.transitionVideo; // Video de transición slide-a-slide
+
+            if (prevSlideId && prevAnimationPath && slideTransitionVideo) {
+                transitionToState({ 
+                    type: 'SLIDE_TO_SLIDE_WITH_TRANSITION',
+                    nextSlideId: prevSlideId, // El "siguiente" slide en este caso es el anterior
+                    nextSlideAnimation: prevAnimationPath,
+                    slideTransitionVideo: slideTransitionVideo
+                });
+            } else if (prevSlideId && prevAnimationPath) { // Fallback
+                transitionToState({ type: 'SLIDE_TO_SLIDE_NO_TRANSITION_BUFFER_SWAP', animationSrc: prevAnimationPath, slideId: prevSlideId });
             }
         });
     });
 
     async function initializeApp() {
-        // ... (sin cambios)
         uiOverlayLayer.classList.remove('active');
         introLayer.classList.remove('active'); 
         ensureNoActiveSlideElements(); 
         menuBackToIntroButton.style.display = 'none';
+        transitionVideoLayer.classList.remove('active'); 
         try {
             if (menuVideoElement.querySelector('source') && menuVideoElement.querySelector('source').src) {
                  await ensureVideoCanPlay(menuVideoElement);
