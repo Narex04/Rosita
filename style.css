@@ -4,8 +4,10 @@ html, body {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    font-family: Arial, sans-serif;
+    /* Fuente base del proyecto cambiada a Onest */
+    font-family: 'Onest', Arial, sans-serif; 
     background-color: #111;
+    color: #333; /* Color de texto base, puede ser sobrescrito */
 }
 
 *, *::before, *::after {
@@ -28,15 +30,15 @@ html, body {
     height: 100%;
     z-index: 1; 
     display: none;
-    background-color: #000; 
+    background-color: transparent; 
 }
 .video-layer.active {
     display: block;
 }
 
-#menu-video-layer { z-index: 1; }
-#transition-video-layer { z-index: 2; } 
-#slide-video-layer { z-index: 3; }    
+#menu-video-layer { z-index: 10; }
+#transition-video-layer { z-index: 20; } 
+#slide-video-layer { z-index: 30; }    
 
 
 .fullscreen-video { 
@@ -62,6 +64,29 @@ html, body {
 .slide-video-buffer.visible, #transition-video-element.visible { 
     opacity: 1;
     z-index: 10; 
+}
+
+/* --- Capa del Marco Estático --- */
+#static-frame-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 50; 
+    pointer-events: none; 
+    overflow: hidden; 
+}
+
+#static-frame-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+    transition: filter 0.5s ease-in-out; 
+}
+
+#static-frame-image.blurred {
+    filter: blur(10px);
 }
 
 
@@ -91,40 +116,58 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 40px; 
+    gap: 10px; 
     opacity: 0;
     transform: translateY(20px);
     transition: opacity 0.8s ease-out, transform 0.8s ease-out;
     text-align: center; 
     margin-bottom: 100px; 
+    padding: 0 20px; 
 }
 #intro-content-wrapper.visible { 
     opacity: 1;
     transform: translateY(0);
 }
 
+.intro-subtitle { 
+    font-family: 'Montserrat', sans-serif; 
+    font-size: 1.4rem; 
+    font-weight: 300; 
+    color: rgba(255, 255, 255, 0.9);
+    text-transform: uppercase;
+    letter-spacing: 1.5px; 
+    margin: 0 0 5px 0; 
+}
+
 #intro-title {
-    font-size: 5.5rem;
-    font-weight: 900;
+    font-family: 'Montserrat', sans-serif; 
+    font-size: 3.5rem; 
+    font-weight: 700; 
     color: white;
     text-align: center;
-    text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+    text-shadow: 1px 1px 6px rgba(0,0,0,0.5);
     margin: 0;
+    line-height: 1.2; 
+    max-width: 90%; 
 }
 
 #start-experience-button {
+    font-family: 'Onest', sans-serif; 
     background-color: rgba(255, 255, 255, 0.2);
     color: white;
     border: 2px solid rgba(255, 255, 255, 0.7);
     padding: 12px 25px;
-    font-size: 1.2rem;
+    font-size: 1.1rem; 
     font-weight: bold;
     border-radius: 25px; 
     cursor: pointer;
     text-transform: uppercase;
     letter-spacing: 1px;
-    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; 
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease, opacity 0.2s ease-out, visibility 0s linear 0.2s; 
     box-shadow: 0 0 0 rgba(255,255,255,0); 
+    opacity: 1;
+    visibility: visible;
+    margin-top: 30px; 
 }
 #start-experience-button:hover:not(.waiting) {
     background-color: rgba(255, 255, 255, 0.35);
@@ -132,32 +175,34 @@ html, body {
     box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.5); 
 }
 #start-experience-button.waiting { 
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: scale(1);
-    box-shadow: none;
+    opacity: 0 !important; 
+    visibility: hidden !important;
+    transition-delay: 0s !important; 
+    cursor: default !important; 
+    transform: scale(1) !important;
+    box-shadow: none !important;
 }
 
 #intro-disclaimer {
     position: absolute;
-    bottom: 30px; 
-    margin-bottom: calc(40px + 10px); 
+    bottom: calc(6.15% + 20px); 
     left: 50%;
     transform: translateX(-50%);
-    width: 80%;
-    max-width: 900px; 
-    padding: 15px;
-    background-color: rgba(0, 0, 0, 0.6); 
-    border-radius: 8px;
+    width: 85%; 
+    max-width: 800px; 
+    padding: 12px; 
+    background-color: rgba(0, 0, 0, 0.65); 
+    border-radius: 6px;
     opacity: 0;
     transition: opacity 0.8s ease-out 0.5s; 
     z-index: 5; 
 }
 #intro-disclaimer p {
-    color: rgba(255, 255, 255, 0.85); 
-    font-size: 0.8rem; 
+    font-family: 'Onest', sans-serif; 
+    color: rgba(255, 255, 255, 0.8); 
+    font-size: 0.75rem; 
     text-align: center;
-    line-height: 1.6;
+    line-height: 1.5;
     margin: 0;
 }
 #intro-layer.active #intro-content-wrapper.visible + #intro-disclaimer { 
@@ -178,11 +223,14 @@ html, body {
     margin-bottom: 70px; 
 }
 .menu-button { 
+    font-family: 'Onest', sans-serif; 
     width: 60px; height: 60px; background-color: white; border-radius: 50%; border: none;
     cursor: pointer; font-size: 1.5em; font-weight: bold; color: #333; display: flex;
     justify-content: center; align-items: center;
-    transition: box-shadow 0.3s ease, transform 0.2s ease, background-color 0.2s ease;
+    transition: box-shadow 0.3s ease, transform 0.2s ease, background-color 0.2s ease, opacity 0.2s ease-out, visibility 0s linear 0.2s;
     box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+    opacity: 1;
+    visibility: visible;
 }
 .menu-button:hover:not(.active):not(.waiting) { 
     box-shadow: 0 0 20px 8px rgba(255, 255, 255, 0.85), 0 0 35px 15px rgba(255, 255, 255, 0.6);
@@ -190,44 +238,59 @@ html, body {
     border-color: transparent;
 }
 .menu-button.waiting { 
-    opacity: 0.5; cursor: not-allowed; box-shadow: none; transform: scale(1);
+    opacity: 0 !important;
+    visibility: hidden !important; 
+    transition-delay: 0s !important;
+    cursor: default !important; 
+    box-shadow: none !important; 
+    transform: scale(1) !important;
 }
 
 /* --- Botón de Información y Recuadro de Texto del Menú Principal --- */
 #menu-info-button {
+    font-family: 'Onest', sans-serif; 
     position: absolute;
-    bottom: 30px; 
+    bottom: calc(6.15% + 20px); 
     left: 50%; 
     transform: translateX(-50%); 
     width: 40px;
     height: 40px;
-    background-color: rgba(255, 255, 255, 0.3);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: 50%;
-    font-size: 1.2rem;
+    background-color: rgba(60, 60, 60, 0.6); 
+    color: white; 
+    border: 1px solid rgba(255, 255, 255, 0.5); 
+    border-radius: 50%; 
+    font-size: 1.2rem; 
     font-weight: bold;
+    display: flex; 
+    justify-content: center;
+    align-items: center;
     cursor: pointer;
-    display: none; 
-    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease, opacity 0.2s ease-out, visibility 0s linear 0.2s;
     z-index: 10; 
+    opacity: 1; 
+    visibility: visible; 
+    box-shadow: 0 0 0 rgba(255,255,255,0); 
 }
 #menu-info-button:hover:not(.waiting) {
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(80, 80, 80, 0.75); 
     transform: translateX(-50%) scale(1.1); 
-    box-shadow: 0 0 10px 3px rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 12px 4px rgba(255, 255, 255, 0.45); 
 }
 #menu-info-button.waiting {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: translateX(-50%) scale(1); 
-    box-shadow: none;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition-delay: 0s !important;
+    cursor: default !important;
+    transform: translateX(-50%) scale(1) !important; 
+    box-shadow: none !important;
 }
 #menu-info-button.active { 
-    background-color: rgba(255, 255, 255, 0.6);
+    background-color: rgba(90, 90, 90, 0.8); 
+    box-shadow: 0 0 8px 2px rgba(255, 255, 255, 0.3); 
 }
 
 .text-block { 
+    font-family: 'Onest', sans-serif; 
     background-color: rgba(250, 250, 250, 0.93);
     color: #333; 
     padding: 20px 25px; 
@@ -239,6 +302,14 @@ html, body {
     transition: opacity 0.3s ease-out, visibility 0s linear 0.3s, transform 0.3s ease-out;
     scrollbar-width: thin;
     scrollbar-color: rgba(0,0,0,0.4) rgba(0,0,0,0.1);
+}
+.text-block h3 { 
+    font-family: 'Onest', sans-serif; 
+    font-weight: 700; 
+    color: #1a1a1a;
+    font-size: 1.3rem; 
+    margin-top: 0;
+    margin-bottom: 10px;
 }
 .text-block.visible { 
     opacity: 1; 
@@ -265,7 +336,12 @@ html, body {
 #menu-info-text-block.visible { 
     transform: translate(-50%, -50%) scale(1);
 }
-#menu-info-text-block h3 { margin-top: 0; color: #1a1a1a; font-size: 1.6rem; margin-bottom: 15px;}
+#menu-info-text-block h3 { 
+    font-family: 'Montserrat', sans-serif; 
+    font-weight: 700;
+    font-size: 1.6rem; 
+    margin-bottom: 15px;
+}
 #menu-info-text-block p { font-size: 0.95rem; line-height: 1.7;}
 
 
@@ -277,10 +353,12 @@ html, body {
     right: 0;
     top: 50%; 
     transform: translateY(-50%); 
-    padding: 0 60px; 
+    padding-left: calc(3.44% + 20px);   
+    padding-right: calc(3.44% + 20px);  
+    padding-top: 20px; 
+    padding-bottom: 20px; /* Reducido padding inferior, el espacio para botones de nav lo da .slide-specific-content */
     width: 100%; 
-    height: calc(100vh - 100px); 
-    max-height: 650px; 
+    height: 100%; 
     box-sizing: border-box;
 }
 
@@ -289,7 +367,8 @@ html, body {
     width: 100%;
     height: 100%;
     flex-direction: column; 
-    align-items: stretch; 
+    align-items: flex-end;   /* Alinea .slide-main-interactive-area a la DERECHA */
+    justify-content: center; /* Centra .slide-main-interactive-area verticalmente */
 }
 .slide-specific-content.active {
     display: flex;
@@ -297,40 +376,170 @@ html, body {
 
 .slide-main-interactive-area {
     display: flex;
-    flex-direction: row;
+    flex-direction: row; 
     gap: 30px; 
-    width: 100%;
-    flex-grow: 1; 
-    overflow: hidden; 
-    position: relative; 
-}
+    width: auto; /* Se ajusta al contenido para que el 'right' funcione bien */
+    
+    position: absolute; 
+    top: 6.15%; /* EJEMPLO: Ajusta este porcentaje para la altura vertical deseada */
+    
+    /* ANTES estaba right: 0; lo que lo pegaba al borde derecho (del padding del padre) */
+    /* AHORA, para moverlo a la izquierda desde el borde derecho: */
+    /* Necesitamos calcular cuánto espacio ocupa el botón "Siguiente" y su margen. */
+    /* Asumamos que el botón "Siguiente" tiene un ancho + padding de unos 120-150px */
+    /* y queremos que los botones círculo queden alineados con él. */
+    /* El .circle-buttons-container tiene su propio padding (25px). */
+    /* Si los botones círculo tienen 45px de ancho, el contenedor es ~95px. */
+    /* Si el botón "Siguiente" está en el extremo derecho, y queremos que el 
+       EXTREMO DERECHO del .circle-buttons-container se alinee con el
+       INICIO (borde izquierdo) del botón "Siguiente".
+       Esto es un poco complejo de hacer directamente con 'right' sin saber el ancho exacto del botón "Siguiente".
+    */
 
+    /* Enfoque más simple: Mover todo el bloque X píxeles desde la derecha. */
+    /* Si antes estaba en right: 0 (pegado al padding derecho de #slide-interactive-elements),
+       y queremos moverlo, por ejemplo, 200px hacia la izquierda DESDE ESA POSICIÓN: */
+    right: 3.44%; /* <<<<<<<<<<<< AJUSTA ESTE VALOR >>>>>>>>>>>> */
+                  /* Incrementa este valor para moverlo MÁS A LA IZQUIERDA. */
+                  /* Disminúyelo para moverlo MÁS A LA DERECHA. */
+                  /* Experimenta con este valor (ej. 100px, 150px, 250px) 
+                     hasta que los botones círculo se alineen visualmente con el botón "Siguiente". */
+
+    transform: translateY(0%); 
+    overflow: visible; 
+    max-height: 70%; 
+}
 .circle-buttons-container { 
     display: flex; 
     flex-direction: column; 
-    gap: 15px; 
-    padding: 25px; 
+    gap: 25px; 
+    /* padding: 25px; -> Ya tienes un padding generoso, veamos si es suficiente.
+                       Si el glow se corta, este es el primer valor a aumentar.
+                       Prueba con padding: 30px; o incluso padding: 35px; */
+    padding: 35px; /* Aumentado para dar más espacio al glow */
     max-height: 100%; 
     overflow-y: auto; 
     scrollbar-width: thin;
     scrollbar-color: rgba(255,255,255,0.4) rgba(0,0,0,0.2);
     flex-shrink: 0; 
+    /* Para asegurar que el contenedor no recorte visualmente el glow si no hay scroll activo.
+       Esto puede ser arriesgado si el contenido realmente necesita ser recortado y el scroll no es suficiente.
+       Si esto causa problemas de layout, quita esta línea y enfócate en el padding. */
+    /* overflow-x: visible;  -> Probablemente no necesario si el problema es vertical u horizontal por padding */
 }
-.circle-buttons-container::-webkit-scrollbar { width: 6px; }
-.circle-buttons-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 3px; }
-.circle-buttons-container::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.4); border-radius: 3px; }
 
+.slide-text-content-area { /* Contenedor que envuelve los text-block */
+    order: 1; /* Hace que el área de texto aparezca antes de los botones */
+    position: relative; /* Para que los text-block se posicionen absolutamente dentro */
+    width: 400px; /* Ancho del área de texto */
+    /* Altura se ajustará por su contenido o se puede limitar con max-height si es necesario */
+}
+
+
+/* Los text-block son hijos directos de .slide-main-interactive-area */
+.slide-main-interactive-area > .text-block { 
+    position: absolute;
+    /* ANTES: left: 140px; (texto a la derecha de los botones) */
+    /* AHORA: texto a la izquierda de los botones. Los botones están a la derecha del todo. */
+    /* El .slide-main-interactive-area se alinea a la derecha de la pantalla. */
+    /* Queremos que el texto esté a la izquierda de los botones. */
+    /* Si los botones tienen un ancho (ej. 45px + padding 2*25px = 95px) */
+    /* y hay un gap de 30px, el texto debe empezar 'ancho_botones + gap' a la izquierda. */
+    /* Como .text-block es posicionado absolutamente, su 'right' es desde el borde derecho de .slide-main-interactive-area */
+    right: calc( 90px ); /* (Ancho aprox. de .circle-buttons-container) + gap */
+                                        /* EJEMPLO: si el contenedor de botones es 95px, right: calc(95px + 30px) = 125px; */
+                                        /* ESTO COLOCA EL BORDE DERECHO DEL TEXTO A 125PX DEL BORDE DERECHO DEL ÁREA PRINCIPAL,
+                                           dejando espacio para los botones a su derecha. */
+    width: 400px; 
+    max-height: calc(100% - 40px); 
+    top: 0; /* El JS lo ajusta para alinear con el botón */
+    /* Animación de entrada: si ahora está a la izquierda, puede entrar desde la derecha */
+    transform: translateX(20px) scale(0.95); 
+}
+.slide-main-interactive-area > .text-block.visible { 
+    transform: translateX(0) scale(1); 
+}
+
+.slide-navigation-buttons {
+    display: flex;
+    justify-content: space-between; 
+    padding: 15px 0 5px 0; 
+    box-sizing: border-box;
+    margin-top: auto; 
+    flex-shrink: 0;
+    position: absolute; /* Asegurar que esté abajo y respete los paddings de #slide-interactive-elements */
+    bottom: calc(6.15% + 20px); /* Marco + Aire debajo de botones */
+    left: calc(3.44% + 20px);   /* Marco + Aire a la izquierda */
+    right: calc(3.44% + 20px);  /* Marco + Aire a la derecha */
+    width: auto; /* Para que se ajuste entre left y right */
+}
+
+/* Estilos Unificados para Botones de Navegación */
+.slide-next-button, .slide-prev-button, 
+#slide-back-to-menu-button, #menu-back-to-intro-button {
+    font-family: 'Onest', sans-serif; 
+    background-color: rgba(60, 60, 60, 0.6); 
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.5); 
+    padding: 10px 20px; 
+    font-size: 0.95rem; 
+    font-weight: bold;
+    border-radius: 22px; 
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.8px; 
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease, opacity 0.2s ease-out, visibility 0s linear 0.2s;
+    opacity: 1;
+    visibility: visible;
+    box-shadow: 0 0 0 rgba(255,255,255,0);
+}
+
+.slide-next-button:hover:not(.waiting), 
+.slide-prev-button:hover:not(.waiting),
+#slide-back-to-menu-button:hover:not(.waiting), 
+#menu-back-to-intro-button:hover:not(.waiting) {
+    background-color: rgba(80, 80, 80, 0.75);
+    transform: scale(1.05);
+    box-shadow: 0 0 12px 4px rgba(255, 255, 255, 0.45); 
+}
+
+.slide-next-button.waiting, 
+.slide-prev-button.waiting,
+#slide-back-to-menu-button.waiting, 
+#menu-back-to-intro-button.waiting {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition-delay: 0s !important;
+    cursor: default !important;
+    transform: scale(1) !important;
+    box-shadow: none !important;
+}
+
+/* Posicionamiento específico para botones de Volver/Inicio generales */
+#slide-back-to-menu-button, #menu-back-to-intro-button { 
+    position: absolute; 
+    top: calc(6.15% + 20px);    
+    left: calc(3.44% + 20px);   
+    display: none; 
+    z-index: 20; 
+}
+
+
+/* --- Círculos de Botones Internos (Ya estilizados, se mantienen) --- */
 .circle-button { 
+    font-family: 'Onest', sans-serif; 
     width: 45px; 
     height: 45px; 
     background-color: white; border-radius: 50%; border: none;
     cursor: pointer; font-size: 1.1em; font-weight: bold; color: #333; display: flex;
     justify-content: center; align-items: center;
-    transition: box-shadow 0.3s ease, transform 0.2s ease, background-color 0.2s ease;
+    transition: box-shadow 0.3s ease, transform 0.2s ease, background-color 0.2s ease, opacity 0.2s ease-out, visibility 0s linear 0.2s;
     box-shadow: 0 0 0 rgba(255, 255, 255, 0);
     flex-shrink: 0; 
     position: relative; 
     z-index: 1; 
+    opacity: 1;
+    visibility: visible;
 }
 .circle-button:hover:not(.active):not(.waiting) { 
     box-shadow: 0 0 15px 6px rgba(255, 255, 255, 0.8), 0 0 25px 12px rgba(255, 255, 255, 0.5);
@@ -346,71 +555,10 @@ html, body {
     z-index: 1; 
 }
 .circle-button.waiting { 
-    opacity: 0.5; cursor: not-allowed; box-shadow: none; transform: scale(1);
-    z-index: 0; 
-}
-
-.slide-main-interactive-area > .text-block { 
-    position: absolute;
-    left: 140px; /* AJUSTA ESTE VALOR: (ancho del .circle-buttons-container) + (gap de 30px) */
-    width: 400px; 
-    max-height: calc(100% - 40px); 
-    top: 0; 
-    transform: translateX(-20px) scale(0.95); 
-}
-
-.slide-navigation-buttons {
-    display: flex;
-    justify-content: space-between; 
-    width: 100%;
-    padding: 15px 0 5px 0; 
-    box-sizing: border-box;
-    margin-top: auto; 
-}
-
-.slide-next-button, .slide-prev-button {
-    background-color: rgba(255, 255, 255, 0.25);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    padding: 8px 18px;
-    font-size: 0.9rem;
-    font-weight: bold;
-    border-radius: 20px;
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-.slide-next-button:hover:not(.waiting), .slide-prev-button:hover:not(.waiting) {
-    background-color: rgba(255, 255, 255, 0.4);
-    transform: scale(1.03);
-}
-.slide-next-button.waiting, .slide-prev-button.waiting {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: scale(1);
-}
-
-/* --- Botones de Volver Generales --- */
-#slide-back-to-menu-button, #menu-back-to-intro-button { 
-    position: absolute; 
-    top: 30px; 
-    left: 30px; 
-    padding: 10px 15px; 
-    font-size: 1.2em; 
-    background-color: rgba(40, 40, 40, 0.7); 
-    color: white; 
-    border: none; 
-    border-radius: 8px; 
-    cursor: pointer; 
-    display: none; 
-    transition: background-color 0.2s ease, transform 0.2s ease;
-    z-index: 20; 
-}
-#slide-back-to-menu-button:hover:not(.waiting), #menu-back-to-intro-button:hover:not(.waiting) { 
-    background-color: rgba(40, 40, 40, 0.95);
-    transform: scale(1.05);
-}
-#slide-back-to-menu-button.waiting, #menu-back-to-intro-button.waiting { 
-    opacity: 0.6; cursor: not-allowed; transform: scale(1);
+    opacity: 0 !important;
+    visibility: hidden !important; 
+    transition-delay: 0s !important;
+    cursor: default !important; 
+    box-shadow: none !important; 
+    transform: scale(1) !important;
 }
