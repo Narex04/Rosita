@@ -4,19 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Infografía Animada Las Lajas</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;700;900&family=Onest:wght@400;700&display=swap" rel="stylesheet">
-    
+
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div id="app-container">
+    <!-- Capa de Video para la Introducción -->
+    <div id="intro-video-layer" class="video-layer active">
+        <video autoplay muted playsinline loop class="fullscreen-video" id="intro-video-element">
+            <source src="videos/intro-background.mp4" type="video/mp4">
+            Tu navegador no soporta videos HTML5.
+        </video>
+    </div>
+
     <!-- Capa de Video de Fondo del Menú -->
-    <div id="menu-video-layer" class="video-layer active">
-        <video autoplay muted playsinline loop class="fullscreen-video" id="menu-video-element">
+    <div id="menu-video-layer" class="video-layer">
+        <video muted playsinline loop class="fullscreen-video" id="menu-video-element">
             <source src="videos/menu-background.mp4" type="video/mp4">
             Tu navegador no soporta videos HTML5.
         </video>
@@ -43,8 +51,13 @@
     <div id="static-frame-layer">
         <img src="images/static-frame.png" alt="Marco Estático" id="static-frame-image">
     </div>
-    
-    <!-- Capa de Introducción -->
+
+    <!-- Capa para la Imagen Superpuesta de Intro -->
+    <div id="overlay-image-layer">
+        <img src="images/lajas.png" alt="Imagen Superpuesta Las Lajas" id="lajas-overlay-image">
+    </div>
+
+    <!-- Capa de Introducción (UI) -->
     <div id="intro-layer" class="ui-layer active">
         <div id="intro-content-wrapper">
             <p class="intro-subtitle">CARTILLA INFOGRÁFICA DIGITAL</p>
@@ -52,50 +65,63 @@
             <button id="start-experience-button">COMENZAR LA EXPERIENCIA</button>
         </div>
         <div id="intro-disclaimer">
-            <p>Esta Cartilla infográfica, desarrollada en el marco de la Maestría en Patrimonio Cultural 
-            Latinoamericano de la Universidad de La Salle (Colombia), constituye un aporte de la Investigación 
-            realizada para el reconocimiento del patrimonio cultural inmaterial en el territorio de Las Lajas, Nariño. 
-            Desde una mirada que concibe el PCI como un sistema vivo, dinámico y relacional, en donde es 
-            necesario visibilizar las prácticas, saberes y representaciones que configuran el sentido de pertenencia 
-            y la identidad comunitaria en un territorio. En consecuencia, el plan de salvaguardia y esta pequeña 
-            muestra, trasciende la conservación de elementos aislados, para enfocarse en estrategias de 
-            revitalización y apropiación colectiva que garanticen el conocimiento, la continuidad y su resignificación 
-            a través del tiempo.</p>
+            <p>Las Lajas es un territorio, en donde lo geográfico se vuelve sagrado a partir de la aparición de la Virgen del Rosario sobre la piedra Laja, experiencia mariana que resignifica el paisaje y lo inscribe en la memoria devocional colectiva. Esta Cartilla infográfica comunica como el espacio, más que un lugar físico, es un escenario de prácticas devocionales —Quincenario, Semana Santa, Navidad y Exvotos— que condensan una identidad colectiva forjada en la fe.</p>
         </div>
     </div>
 
     <!-- Capa de Contenido Superpuesto -->
     <div id="ui-overlay-layer" class="ui-layer">
         <button id="menu-back-to-intro-button">← Inicio</button>
-
-        <div id="menu-buttons-area">
-            <button class="menu-button" 
-                    data-slide-id="slide1" 
-                    data-animation="videos/slide1-animation.mp4" 
-                    data-entry-transition="videos/menu-to-slide1-transition.mp4"
-                    data-exit-transition="videos/slide1-to-menu-transition.mp4">1</button>
-            <button class="menu-button" 
-                    data-slide-id="slide2" 
-                    data-animation="videos/slide2-animation.mp4" 
-                    data-entry-transition="videos/menu-to-slide2-transition.mp4"
-                    data-exit-transition="videos/slide2-to-menu-transition.mp4">2</button>
-            <button class="menu-button" 
-                    data-slide-id="slide3" 
-                    data-animation="videos/slide3-animation.mp4" 
-                    data-entry-transition="videos/menu-to-slide3-transition.mp4"
-                    data-exit-transition="videos/slide3-to-menu-transition.mp4">3</button>
-            <button class="menu-button" 
-                    data-slide-id="slide4" 
-                    data-animation="videos/slide4-animation.mp4" 
-                    data-entry-transition="videos/menu-to-slide4-transition.mp4"
-                    data-exit-transition="videos/slide4-to-menu-transition.mp4">4</button>
-            <button class="menu-button" 
-                    data-slide-id="slide5" 
-                    data-animation="videos/slide5-animation.mp4" 
-                    data-entry-transition="videos/menu-to-slide5-transition.mp4"
-                    data-exit-transition="videos/slide5-to-menu-transition.mp4">5</button>
+        
+        <div id="menu-anchor-container">
+            <div id="menu-buttons-area">
+                <button class="menu-button" id="menu-button-1"
+                        data-slide-id="slide1"
+                        data-animation="videos/slide1-animation.mp4"
+                        data-entry-transition="videos/menu-to-slide1-transition.mp4"
+                        data-exit-transition="videos/slide1-to-menu-transition.mp4">
+                    <span class="menu-button-icon">🙏</span>
+                    <span class="menu-button-text">SEMANA SANTA</span>
+                </button>
+                <button class="menu-button" id="menu-button-2"
+                        data-slide-id="slide2"
+                        data-animation="videos/slide2-animation.mp4"
+                        data-entry-transition="videos/menu-to-slide2-transition.mp4"
+                        data-exit-transition="videos/slide2-to-menu-transition.mp4">
+                    <span class="menu-button-icon">🎄</span>
+                    <span class="menu-button-text">NAVIDAD</span>
+                </button>
+                <button class="menu-button" id="menu-button-3"
+                        data-slide-id="slide3"
+                        data-animation="videos/slide3-animation.mp4"
+                        data-entry-transition="videos/menu-to-slide3-transition.mp4"
+                        data-exit-transition="videos/slide3-to-menu-transition.mp4">
+                    <span class="menu-button-icon">🎉</span>
+                    <span class="menu-button-text">QUINCENARIO</span>
+                </button>
+                <button class="menu-button" id="menu-button-4"
+                        data-slide-id="slide4"
+                        data-animation="videos/slide4-animation.mp4"
+                        data-entry-transition="videos/menu-to-slide4-transition.mp4"
+                        data-exit-transition="videos/slide4-to-menu-transition.mp4">
+                    <span class="menu-button-icon">🕯️</span>
+                    <span class="menu-button-text">EXVOTOS</span>
+                </button>
+                <button class="menu-button" id="menu-button-5"
+                        data-slide-id="slide5"
+                        data-animation="videos/slide5-animation.mp4"
+                        data-entry-transition="videos/menu-to-slide5-transition.mp4"
+                        data-exit-transition="videos/slide5-to-menu-transition.mp4">
+                    <span class="menu-button-icon">🗺️</span>
+                    <span class="menu-button-text">TERRITORIO</span>
+                </button>
+            </div>
         </div>
 
+        <div id="speech-bubble" class="text-block">
+            <p>¡Hola! Soy Rosita, y hace mucho tiempo, una tormenta nos llevó a mi mamá María Mueses y a mí a una cueva en medio de las montañas caminando a Potosí. Yo era mudita, pero ese día le hablé a mi mamá por primera vez: le dije: “Mamita, la mestiza me llama” y mi mamá quedó con la boca abierta, como si algo pasó.<br><br>Después de que yo hablé, la cueva se hizo bonita y mucha gente empezó a visitarla, porque la Mamita de Las Lajas hizo su primer milagro… ¡Me hizo hablar!... ¡soy su primer milagro!. Hoy… te muestro lo que vivimos con mucha devoción y amor a la Virgen de las Lajas, ¡acompáñame por esta aventura!<br><br>¡Elige la festividad que quieras explorar!</p>
+        </div>
+        
         <div id="slide-interactive-elements">
             <!-- Contenido para Slide 1: Semana Santa -->
             <div class="slide-specific-content" data-content-for-slide="slide1">
@@ -104,23 +130,18 @@
                         <button class="circle-button" data-text-target="s1-text-block-1">1</button>
                         <button class="circle-button" data-text-target="s1-text-block-2">2</button>
                         <button class="circle-button" data-text-target="s1-text-block-3">3</button>
-                        <button class="circle-button" data-text-target="s1-text-block-4">4</button>
-                        <button class="circle-button" data-text-target="s1-text-block-5">5</button>
-                        <button class="circle-button" data-text-target="s1-text-block-6">6</button>
                     </div>
-                    <div id="s1-text-block-1" class="text-block"><h3>Naturaleza y Origen</h3><p>Es una manifestación cultural viva de fe y devoción popular, arraigada en la región de Nariño hacia la Virgen del Rosario de Las Lajas. Se origina en la aparición de la Virgen en 1754 a María Mueses y su hija Rosa, convirtiendo el lugar en un centro de peregrinación.</p></div>
-                    <div id="s1-text-block-2" class="text-block"><h3>Participantes y Propósito</h3><p>Miles de peregrinos caminan desde diversas localidades de Colombia, Ecuador y otros países. Entre ellos se encuentran comunidades indígenas, como los Pastos. Los peregrinos suelen ser de Pasto y otras regiones de Nariño (miércoles y jueves santo), y del centro y norte de Ecuador (jueves y viernes santo), a menudo en grupos grandes y vestidos con trajes típicos.<br><br>Realizan actos de agradecimiento y penitencia, buscando sanación, consuelo o cumpliendo promesas. Muchos tienen la devoción de peregrinar por tres años consecutivos para obtener favores o dar gracias a la Virgen, que pueden incluir mejores condiciones laborales, sanación física y espiritual, o rehabilitación de adicciones.</p></div>
-                    <div id="s1-text-block-3" class="text-block"><h3>Actividades y Saberes del Peregrino</h3><p>Se transmiten conocimientos religiosos y teológicos, así como tradiciones orales sobre el significado del Santuario y los milagros atribuidos. Se realizan las peregrinaciones, procesiones, y diferentes oraciones y celebraciones propias de la Semana Santa.<br><br>Los peregrinos emprenden su viaje a pie, llevando ofrendas y objetos cotidianos como exvotos (aparatos ortopédicos, algodones, cabello, bastones, placas, medallas), además de velas y otros símbolos religiosos. Los saberes prácticos incluyen la confección de vestimentas especiales, la preparación de comidas tradicionales y la organización logística de las peregrinaciones.</p></div>
-                    <div id="s1-text-block-4" class="text-block"><h3>Prácticas Históricas y Actuales</h3><p>Históricamente, algunos penitentes caminaban descalzos desde el acceso al poblado hasta el altar mayor, aunque esta práctica ha sido descontinuada.<br><br>La Diócesis de Ipiales y la capellanía venden "kits de peregrinos" (pasaporte, mapa e identificación) para quienes participan activamente, otorgando un diploma al completar la romería. También se realizan recorridos relacionados con el Qhapaq Ñan (Camino Principal Andino).</p></div>
-                    <div id="s1-text-block-5" class="text-block"><h3>Celebraciones Litúrgicas Destacadas</h3><p>El inicio de las peregrinaciones se da con la representación teatral de la pasión de Jesucristo el último viernes de cuaresma, con el pueblo iluminado por antorchas y sin luz eléctrica para un ambiente solemne. El peregrinaje masivo comienza el sábado siguiente hasta el viernes santo.<br><br>Las actividades litúrgicas incluyen: procesión de Ramos, eucaristía por los enfermos, celebración de las siete caídas, cena del señor, meditación de las siete palabras, descendimiento, procesión del santo sepulcro, meditación de los dolores de María, vigilia pascual y eucaristía de Cristo resucitado.</p></div>
-                    <div id="s1-text-block-6" class="text-block"><h3>El Espacio Transformado</h3><p>La concentración de peregrinos se da desde la vía Ipiales a Potosí, pasando por barrios como "La Inmaculada" y "San Francisco", hasta el atrio general frente a la Basílica Menor, donde el espacio de la cotidianidad se transforma en un espacio ceremonial de culto.</p></div>
+                    <div id="s1-text-block-1" class="text-block"><h3>Semana Santa, Celebraciones Litúrgicas y Peregrinaciones en Las Lajas</h3><p>¿Sabe qué? Le voy a contar cómo es la Semana Santa acá en Las Lajas, que es bien linda y llena de cosas que hacen llorar el corazón, pero de alegría. Todos los años, desde hace rato, viene mucha gente caminando desde por allá bien lejos, hasta desde el Ecuador. Vienen a ver a la Virgencita, porque ella es bien milagrosa. Hay señores y señoras indígenas que traen sus bordones, otros vienen con los guagüitas chiquitos como yo, y todos traen promesas en el corazón. Caminan con harta fe, pero uno siente como si fueran rezando bien comañita. Algunos dejan velitas, rosarios, dibujitos, y hasta carticas con lo que les pasó.</p></div>
+                    <div id="s1-text-block-2" class="text-block"><h3>Semana Santa, Celebraciones Litúrgicas y Peregrinaciones en Las Lajas</h3><p>Antes de que comience la Semana Santa, hacen una obra de Jesús. Esa noche no hay ni una lucecita prendida, solo antorchas… ¡parece que el cielo también estuviera rezando con nosotros! Yo esa noche me pongo mi ruanita porque ¡achichay!….. pero no me la pierdo. Después la gente camina desde lejos hasta el Santuario. Pasan por el barrio La Inmaculada,  y también el San Francisco… ¡por toditos los lados!</p></div>
+                    <div id="s1-text-block-3" class="text-block"><h3>Semana Santa, Celebraciones Litúrgicas y Peregrinaciones en Las Lajas</h3><p>A mí me gusta la procesión de ramos, porque todos llevan palmas algunas tejidas, bien bonitas, y en la vigilia pascual se siente como si el alma se le alegrara a uno. También se reza por los que están enfermitos. Las calles se llenan de gentes, caminando y también se sienten las promesas que se dicen calladito. Todo huele bien rico, como a fe. Mi mamá dice que esos días la Virgencita camina con nosotros, por eso se siente distinto.  Yo siempre digo que en Semana Santa Las Lajas late hartísimo, porque la fe va caminando a pasitos con nosotros. ¿Y Vuste viene? ¡Porque aquí se tiene harta esperanza y hasta milagros!</p></div>
                 </div>
                 <div class="slide-navigation-buttons">
-                    <span></span> 
-                    <button class="slide-next-button" 
-                            data-next-slide-id="slide2" 
+                    <span></span>
+                    <button class="slide-next-button"
+                            data-next-slide-id="slide2"
                             data-next-animation="videos/slide2-animation.mp4"
-                            data-transition-video="videos/slide1-to-slide2-transition.mp4">Siguiente →</button>
+                            data-transition-video="videos/slide1-to-slide2-transition.mp4"
+                            data-next-text="NAVIDAD →">Siguiente →</button>
                 </div>
             </div>
 
@@ -131,58 +152,51 @@
                         <button class="circle-button" data-text-target="s2-text-block-1">1</button>
                         <button class="circle-button" data-text-target="s2-text-block-2">2</button>
                         <button class="circle-button" data-text-target="s2-text-block-3">3</button>
-                        <button class="circle-button" data-text-target="s2-text-block-4">4</button>
-                        <button class="circle-button" data-text-target="s2-text-block-5">5</button>
                     </div>
-                    <div id="s2-text-block-1" class="text-block"><h3>Naturaleza y Organización</h3><p>Tienen un doble inicio: una fiesta popular y una celebración eclesiástica del nacimiento de Jesús. El espacio de Las Lajas se transforma en un "gran pesebre vivencial" con luces, villancicos y adornos. La visita a la Virgen de Las Lajas se extiende a la celebración de la natividad, bajo la creencia popular de que "la Virgen María es la madre de Dios".<br><br>Cuenta con el apoyo de todo el personal eclesiástico (sacerdotes, hermanas dominicas y voluntariado episcopal). Cada año hay una temática conmemorativa para el pregón (ej. en 2021, homenaje a víctimas de la pandemia).</p></div>
-                    <div id="s2-text-block-2" class="text-block"><h3>Temporalidad y Actividades Iniciales</h3><p>Se inician el 7 de diciembre con la iluminación del Santuario y el poblado el 8 de diciembre. Coinciden con el día de velitas y la fiesta de la Inmaculada Concepción. Se realizan aproximadamente 16 eucaristías diarias.<br><br>El alumbrado del pueblo y la decoración de Las Lajas se mejoran anualmente con fondos recaudados para el disfrute de habitantes locales y visitantes.</p></div>
-                    <div id="s2-text-block-3" class="text-block"><h3>Pregón Navideño</h3><p>Es una tradición popular religiosa relativamente nueva, iniciada en 2017. Se realiza "4 domingos de antelación", llevando una carroza alegórica de la Virgen de Las Lajas, acompañada de grupos con motivos navideños, a Ipiales y parroquias de la Diócesis. El 6 y 7 de diciembre, junto con la iluminación, se invita a recorrer el poblado, que se convierte en un "pesebre completo" con velas y figuras de pesebre.</p></div>
-                    <div id="s2-text-block-4" class="text-block"><h3>Novena de Aguinaldos</h3><p>Una manifestación cultural de tradición popular en Colombia. En Las Lajas, cada barrio es un "fiestero" y anfitrión de un día específico de la novena, con apoyo de sacerdotes y hermanas dominicas. Los participantes procesionan desde el barrio La Inmaculada hasta el Santuario, disfrazados de pastores, ángeles, María, San José y otros motivos navideños. El recorrido nocturno transforma el espacio en festivo y solemne, acompañado de color, luces, villancicos y pólvora.</p></div>
-                    <div id="s2-text-block-5" class="text-block"><h3>Consagración de los Niños</h3><p>Particularmente, se consagra tanto a la Virgen de Las Lajas como al Niño Jesús. Se realiza el último día de la novena, siendo la parroquia de Las Lajas la anfitriona. Los principales actores son la primera infancia y adolescencia, que participan disfrazados de personajes navideños (pastores, ángeles, reyes magos, María, José, y un niño como el Niño Jesús). El recorrido es similar al de las novenas, terminando en la Basílica Menor con eucaristía, consagración infantil y entrega de detalles navideños.</p></div>
+                    <div id="s2-text-block-1" class="text-block"><h3>Festividades Navideñas de La Virgen de Las Lajas</h3><p>En diciembre, Las Lajas se hace brillante!!!. Aquí celebramos la Navidad con la Mamita de Las Lajas, y es bien bonito, porque todo se siente diferente. Empieza el 7 de diciembre, cuando prendemos velitas también se prenden las lucecitas en el Santuario y por todito el pueblo. El 8 es la fiesta de la Virgen Inmaculada. Ese día, Las Lajas parece un pesebre grandote, lleno de luces, música, estrellas y villancicos. La gente reza, canta, y uno siente que el corazón se le alegra solito. Los padrecitos, las monjitas y los señores que ayudan se encargan de preparar todo con mucho cariño. Se hacen hartas misas, a veces ¡hasta dieciséis en un solo día!, y uno no se cansa porque todo es de buen modo, con fe.</p></div>
+                    <div id="s2-text-block-2" class="text-block"><h3>Festividades Navideñas de La Virgen de Las Lajas</h3><p>A mí me gusta mucho el Pregón Navideño. Es como un desfile bien bonito. Adelante va una carroza con la imagen de la Virgencita va hasta Ipiales y por varias parroquias, y van niños, ángeles, pastores y músicos que van cantando que Jesús ya viene. ¡Es como si todo el pueblo saliera a avisar que ya va nacer el niño Dios y la misma Virgencita de las Lajas invita!!! Yo siempre pienso que en Navidad la Virgen se pone feliz, porque todo brilla bonito y el pueblo entero se alista para recibir al Niño Dios.</p></div>
+                    <div id="s2-text-block-3" class="text-block"><h3>Festividades Navideñas de La Virgen de Las Lajas</h3><p>Y eso no es todo… También hacemos la Novena de Aguinaldos, que es linda, linda. Cada barrio se encarga de un día, y lo celebra con mucha alegría. Nos vestimos del pesebre, María, José, los angelitos, y pastorcitos, y caminamos con luces, cantos y pólvora que pinta el cielo.  Todo empieza también en el barrio La Inmaculada y termina allá, en Las Lajas.   Se reza, se canta y la gente va con devoción. El último día es el que más me gusta. Se hace la consagración de los guagüitas al Niño Jesús y a la Virgen de Las Lajas. Los niños vamos disfrazados, y al final hay una misa muy bonita. Nos dan regalitos y todos contentos. Es una fiesta donde se siente, la fe, la esperanza y el amor de la Madre que nos cuida. ¿Vamos? Porque en esta noche, todo el cielo parece que también quiere cantar.</p></div>
                 </div>
-                <div class="slide-navigation-buttons">
-                    <button class="slide-prev-button" 
-                            data-prev-slide-id="slide1" 
-                            data-prev-animation="videos/slide1-animation.mp4"
-                            data-transition-video="videos/slide2-to-slide1-transition.mp4">← Anterior</button>
-                    <button class="slide-next-button" 
-                            data-next-slide-id="slide3" 
-                            data-next-animation="videos/slide3-animation.mp4"
-                            data-transition-video="videos/slide2-to-slide3-transition.mp4">Siguiente →</button>
+                   <div class="slide2-controls-container">
+                        <button id="toggle-christmas-light-button">Encender la Navidad</button>
+                   </div>
+                    <div class="slide-navigation-buttons">
+                        <button class="slide-prev-button"
+                                data-prev-slide-id="slide1"
+                                data-prev-animation="videos/slide1-animation.mp4"
+                                data-transition-video="videos/slide2-to-slide1-transition.mp4"
+                                data-prev-text="← SEMANA SANTA">← Anterior</button>
+                        <button class="slide-next-button"
+                                data-next-slide-id="slide3"
+                                data-next-animation="videos/slide3-animation.mp4"
+                                data-transition-video="videos/slide2-to-slide3-transition.mp4"
+                                data-next-text="QUINCENARIO →">Siguiente →</button>
+                    </div>
                 </div>
-            </div>
 
-             <!-- Contenido para Slide 3: Fiestas Patronales -->
+            <!-- Contenido para Slide 3: Fiestas Patronales -->
             <div class="slide-specific-content" data-content-for-slide="slide3">
                 <div class="slide-main-interactive-area">
                     <div class="circle-buttons-container">
                         <button class="circle-button" data-text-target="s3-text-block-1">1</button>
                         <button class="circle-button" data-text-target="s3-text-block-2">2</button>
                         <button class="circle-button" data-text-target="s3-text-block-3">3</button>
-                        <button class="circle-button" data-text-target="s3-text-block-4">4</button>
-                        <button class="circle-button" data-text-target="s3-text-block-5">5</button>
-                        <button class="circle-button" data-text-target="s3-text-block-6">6</button>
-                        <button class="circle-button" data-text-target="s3-text-block-7">7</button>
-                        <button class="circle-button" data-text-target="s3-text-block-8">8</button>
                     </div>
-                    <div id="s3-text-block-1" class="text-block"><h3>Naturaleza, Origen y Temporalidad</h3><p>Es un periodo de quince (15) días dedicado a la oración, reflexión y adoración de la Virgen del Rosario de Las Lajas. Su origen se relaciona con la aparición el 15 de septiembre y la coronación canónica el 16 de septiembre por el papa Pío IX. Los 15 días hacen alusión a los 15 misterios del rosario (originalmente).<br><br>Se celebra anualmente del 1 al 15 de septiembre.</p></div>
-                    <div id="s3-text-block-2" class="text-block"><h3>Organización y Participación</h3><p>La festividad ha sido modificada por el calendario escolar, lo que ha reducido las visitas. La Diócesis de Ipiales y la capellanía de Las Lajas han decidido dinamizarla invitando a diversas parroquias y comunidades como "actores de la fiesta" o "anfitriones".</p></div>
-                    <div id="s3-text-block-3" class="text-block"><h3>Pregón del Quincenario</h3><p>Aproximadamente 8 años de tradición, se realiza el 31 de agosto. La "Virgen misma hace la invitación a la fiesta" a las parroquias de la Diócesis de Ipiales. Incluye un desfile con agrupaciones asociadas a la Basílica (fotógrafos, llameros, transportadores) y representaciones temáticas (aparición, construcción del templo, peregrinos ecuatorianos, artesanías, exvotos).</p></div>
-                    <div id="s3-text-block-4" class="text-block"><h3>Llegada de los Fiesteros</h3><p>Entre el 1 y el 15 de septiembre, "fiesteros" o "comuneros" llegan en comparsas, danzas, con vallas informativas y réplicas de la Virgen o santos patronos. Realizan peregrinajes en comunidad desde su lugar de origen, llevando avíos para el consumo y ofrendas como semillas y tubérculos para asegurar cosechas generosas. La bendición del padre a sus imágenes se cree que les da nuevas energías y protección.</p></div>
-                    <div id="s3-text-block-5" class="text-block"><h3>Hospitalidad Local</h3><p>Históricamente, el poblado de Las Lajas (especialmente los barrios San Francisco y Socorro Manantial) ha sido anfitrión de los fiesteros, albergándolos en casas donde incluso se compartían alimentos. Actualmente, los municipios tienen turnos específicos para las peregrinaciones.</p></div>
-                    <div id="s3-text-block-6" class="text-block"><h3>Actividades Lúdicas y Culturales</h3><p>Concurso de Música Inédita a la Virgen de Las Lajas (4 ediciones).<br>Concurso de Poesía con la Virgen como temática principal.<br>Carrera Atlética Recreativa Las Lajas desde Ipiales hasta el Santuario.<br>Festival de Danzas “La Mestiza” con temáticas variadas y artistas invitados.</p></div>
-                    <div id="s3-text-block-7" class="text-block"><h3>Actividades Eclesiásticas</h3><p>Además de las eucaristías y las oraciones propias Marianas.<br><strong>Consagración de la Infancia a la Virgen de Las Lajas:</strong> La niñez es considerada "fiestera" (comunera). Los infantes procesionan desde el Barrio La Inmaculada hasta el atrio de la Basílica, disfrazados con temáticas de la Virgen o como campesinos (en tributo a Rosita Mueses), haciendo ofrendas florales y dibujos a la "Mamita de Las Lajas". Reciben estampitas bendecidas y golosinas. La procesión es liderada por el párroco principal y las hermanas dominicas.</p></div>
-                    <div id="s3-text-block-8" class="text-block"><h3>Cierre</h3><p>El cierre de la celebración.<br><strong>Cierre:</strong> El Quincenario culmina con las solemnes vísperas el 15 de septiembre, las fiestas patronales el 16 de septiembre y una eucaristía de acción de gracias, lideradas por el Obispo de la diócesis de Ipiales. El territorio cotidiano se transforma en territorio de lo sacro y de veneración.</p></div>
+                    <div id="s3-text-block-1" class="text-block"><h3>Fiestas Patronales del Quincenario a La Virgen de Las Lajas</h3><p>¿Sabe qué?... En mi casa toditos nos ponemos contentos en septiembre, porque empieza el Quincenario de la Mamita Mirona. Son quince días bien lindos, llenos de oraciones, cantos y mucha alegría. Todo arranca el 31 de agosto con el pregón, ¡esa es la invitación que hace la Virgencita para su fiesta! Hay desfile con música, y la gente se disfraza bien bonito contando cómo nació el Santuario. Me gusta mirar los trajes y a las llamitas es muy divertido. Desde el primero hasta el quince de septiembre van llegando los fiesteros, desde montones de pueblos. Vienen bailando, con sus imágenes, sus semillas, y traen hartas ofrendas que después el padrecito bendice. Dicen que esas bendiciones les dan fuerza para seguir con ganas y esperanza. En mi casita, como siempre, recibimos los peregrinos. Mi Mamita María hace sopita de poliada caliente y compartimos la comida, rezamos todos junticos y tomamos el  champús que trae mi abuelita.</p></div>
+                    <div id="s3-text-block-2" class="text-block"><h3>Fiestas Patronales del Quincenario a La Virgen de Las Lajas</h3><p>El pueblo se llena, de cantos bonitos y de promesas que se sienten en el corazón. Yo creo que hasta las montañas y el Guaitara rezan con nosotros… porque cuando la Virgencita nos mira, todo se vuelve sagrado.  Y verá que durante esos días hay cosas bien lindas. Hacen concursos de canciones y poesías para la Virgencita, una carrera y al trote vienen desde Ipiales hasta el Santuario —¡corren durísimo!— y también un festival de danzas donde toditos bailan contentos. Lo que más me gusta es cuando los guagüas, como yo, somos parte de la fiesta. Nos disfrazamos y caminamos en la procesión desde el barrio La Inmaculada, llevamos flores, dibujos y le decimos a la Mamita de Las Lajas cuánto la queremos. Al final nos regalan estampitas benditas y dulces. ¡Me guardo todo como tesoro!</p></div>
+                    <div id="s3-text-block-3" class="text-block"><h3>Fiestas Patronales del Quincenario a La Virgen de Las Lajas</h3><p>El 16 de septiembre se acaba con una misa grande. Ese día, el pueblo se siente diferente... como si el cielo se hubiera bajado a abrazarnos. ¿No le parece bonito, cierto? ¡Vamos a celebrarlo! Porque acá en Las Lajas, el amor se nota en cada corazón.</p></div>
                 </div>
                 <div class="slide-navigation-buttons">
-                    <button class="slide-prev-button" 
-                            data-prev-slide-id="slide2" 
+                    <button class="slide-prev-button"
+                            data-prev-slide-id="slide2"
                             data-prev-animation="videos/slide2-animation.mp4"
-                            data-transition-video="videos/slide3-to-slide2-transition.mp4">← Anterior</button>
-                    <button class="slide-next-button" 
-                            data-next-slide-id="slide4" 
+                            data-transition-video="videos/slide3-to-slide2-transition.mp4"
+                            data-prev-text="← NAVIDAD">← Anterior</button>
+                    <button class="slide-next-button"
+                            data-next-slide-id="slide4"
                             data-next-animation="videos/slide4-animation.mp4"
-                            data-transition-video="videos/slide3-to-slide4-transition.mp4">Siguiente →</button>
+                            data-transition-video="videos/slide3-to-slide4-transition.mp4"
+                            data-next-text="EXVOTOS →">Siguiente →</button>
                 </div>
             </div>
 
@@ -193,80 +207,60 @@
                         <button class="circle-button" data-text-target="s4-text-block-1">1</button>
                         <button class="circle-button" data-text-target="s4-text-block-2">2</button>
                         <button class="circle-button" data-text-target="s4-text-block-3">3</button>
-                        <button class="circle-button" data-text-target="s4-text-block-4">4</button>
-                        <button class="circle-button" data-text-target="s4-text-block-5">5</button>
-                        <button class="circle-button" data-text-target="s4-text-block-6">6</button>
                     </div>
-                    <div id="s4-text-block-1" class="text-block"><h3>Naturaleza y Formas Generales</h3><p>Un exvoto es una ofrenda hecha a un ser sobrenatural por un beneficio supuestamente concedido, proveniente del latín "exvoto" ("por un voto o promesa"). Representa un acto de devoción y agradecimiento, siendo un testimonio de la intercesión divina.<br><br>Pueden ser objetos concretos como estatuillas, placas, crucifijos o cuadros. También incluyen velas, algodones con enfermedades, cabello, medallas, aparatos ortopédicos (muletas, bastones, sillas de ruedas) y camándulas (rosarios, pulseras, escapularios).</p></div>
-                    <div id="s4-text-block-2" class="text-block"><h3>Ubicación y Significado General</h3><p>Son depositados o colgados en el Santuario como muestra de gratitud por un deseo concedido o gracia obtenida. Hay más de 7,000 placas de agradecimiento localizadas en la circulación principal que lleva al templo, sobre las peñas.<br><br>Las placas reflejan eventos de la vida humana, expresando angustia, agradecimiento e incertidumbre de los creyentes. Contienen mensajes representativos (filosóficos, teológicos, políticos, económicos, científicos, literarios) que dan testimonio de milagros atribuidos a la Virgen. Cada exvoto expresa la madurez religiosa, cultura e idiosincrasia de los peregrinos y turistas.</p></div>
-                    <div id="s4-text-block-3" class="text-block"><h3>Placas de Agradecimiento</h3><p>Forma simbólica de expresar gratitud pública por un favor o gracia recibida, sirviendo como testimonio público de fe y devoción.</p></div>
-                    <div id="s4-text-block-4" class="text-block"><h3>Algodones</h3><p>La práctica de dejar algodones, se relaciona con la creencia en la intercesión divina y la búsqueda de alivio espiritual y físico. Es un acto de ofrecimiento simbólico con la esperanza de consuelo o sanación.</p></div>
-                    <div id="s4-text-block-5" class="text-block"><h3>Camándulas y Rosarios</h3><p>Dejados colgados en la peña del santuario como expresión de devoción y fe. Simbolizan el compromiso con la oración, la conexión espiritual con el lugar sagrado y el deseo de buscar consuelo, protección o ayuda.</p></div>
-                    <div id="s4-text-block-6" class="text-block"><h3>Velas y su Ritual</h3><p>Símbolos de luz, esperanza y oración. Representan la presencia divina, iluminación espiritual y purificación. Al encenderlas y dejarlas en el santuario, las personas expresan intenciones, peticiones o agradecimientos a Dios y a la Virgen. Existe un pequeño ritual de frotar la vela en el cuerpo o poner nombres, creyendo que la Virgen "se lleva las enfermedades". La intensidad de la llama o las formas de la cera derretida son interpretadas como señales de la recepción de la petición o la presencia de ángeles. El acto simboliza la continuidad de la oración más allá de la presencia física del fiel.</p></div>
+                    <div id="s4-text-block-1" class="text-block"><h3>Exvotos a la Virgen de Las Lajas</h3><p>Hoy les cuento, a qué llamamos los Exvotos. Son como regalitos que la gente le trae a la Virgencita de Las Lajas para decirle gracias por un milagro o por cumplir una promesita que tenían en el corazón. Hay de hartos tipos: placas, velas, rosarios, dibujos, muletas, bastones… hasta algodón o pelo ponen entre las piedras. Cada cosita tiene su historia, como oración que se quedó guardada en el regalo a la Mamita de Las Lajas. Vieran… Es gente agradecida o con esperanzas bien grandes. Si Vusté viene al Santuario, verá muchísimos de esos exvotos pegados en las piedras del camino. Es como si las montañas guardaran secretos, como si escucharan junto con la Virgen de Las Lajas. Para mí, cada exvoto le dice a la Virgencita: “Gracias Mamita por cuidarnos, no te olvides de mi”.</p></div>
+                    <div id="s4-text-block-2" class="text-block"><h3>Exvotos a la Virgen de Las Lajas</h3><p>Las plaquitas son como carticas duras, hechas de piedra o metal, y dicen cosas lindas como: “Gracias, Virgencita, por ayudarme”. Los algodones los dejan los que están enfermitos, como pa’ que la Virgen les toque el cuerpo y los sane. También hay rosarios colgados, porque rezar es como hablar pasito con la Virgen bien al oído.</p></div>
+                    <div id="s4-text-block-3" class="text-block"><h3>Exvotos a la Virgen de Las Lajas</h3><p>Y las velas… ¡esas, que lindas que han sabido ser! Cada una lleva una oración guardada en su luz. A veces, la gente se la soba en su cuerpo o les pone el nombre de alguien para que la Virgencita le ayude con lo que piden, mamita dice que, si la llama de la vela se mueve bonito o si la cera forma una figura especial, es porque los ángeles de la Virgencita están escuchando y es más grande el  milagrito. ¡divisemos estos detalles bien lindos que dicen hartísimo pero calladitos!</p></div>
                 </div>
                 <div class="slide-navigation-buttons">
-                    <button class="slide-prev-button" 
-                            data-prev-slide-id="slide3" 
+                    <button class="slide-prev-button"
+                            data-prev-slide-id="slide3"
                             data-prev-animation="videos/slide3-animation.mp4"
-                            data-transition-video="videos/slide4-to-slide3-transition.mp4">← Anterior</button>
-                    <span></span> 
+                            data-transition-video="videos/slide4-to-slide3-transition.mp4"
+                            data-prev-text="← QUINCENARIO">← Anterior</button>
+                    <button class="slide-next-button"
+                            data-next-slide-id="slide5"
+                            data-next-animation="videos/slide5-animation.mp4"
+                            data-transition-video="videos/slide4-to-slide5-transition.mp4"
+                            data-next-text="TERRITORIO →">Siguiente →</button>
                 </div>
             </div>
 
             <!-- Contenido para Slide 5: Configuración físico-espacial -->
             <div class="slide-specific-content" data-content-for-slide="slide5">
-                <div class="slide-main-interactive-area">
-                    <div class="circle-buttons-container">
-                        <button class="circle-button" data-text-target="s5-text-block-1">1</button>
-                        <button class="circle-button" data-text-target="s5-text-block-2">2</button>
-                        <button class="circle-button" data-text-target="s5-text-block-3">3</button>
-                        <button class="circle-button" data-text-target="s5-text-block-4">4</button>
-                    </div>
-                    <div id="s5-text-block-1" class="text-block">
-                        <h3>Ubicación y Geografía General</h3>
-                        <p>El corregimiento de Las Lajas, situado entre los municipios de Ipiales y Potosí, se encuentra a unos 90 minutos de la ciudad de San Juan de Pasto, capital del departamento de Nariño. En su territorio se establece el Santuario de Las Lajas, ubicado en la margen oriental del cañón del río Guáitara, al suroccidente del departamento.</p>
-                    </div>
-                    <div id="s5-text-block-2" class="text-block">
-                        <h3>Extensión y Paisaje</h3>
-                        <p>El Santuario y su centro poblado, de acuerdo con Instituto Geográfico Agustín Codazzi (2024), cuenta con una extensión de aproximadamente 672.920 metros cuadrados, presenta una geografía montañosa y escarpada, con altitudes que varían entre los 2.496 y 2.961 m.s.m. El paisaje se manifiesta como un territorio de múltiples capas donde conviven memorias vegetales y cursos de agua que esculpen la identidad del territorio.</p>
-                    </div>
-                    <div id="s5-text-block-3" class="text-block">
-                        <h3>Cobertura Vegetal y Río Guáitara</h3>
-                        <p>La cobertura vegetal tiene presencias foráneas: pinos, eucaliptos, jardines domesticados y retazos resistentes de naturaleza nativa.<br><br>El río Guáitara, el relato hidro simbólico de la región, fluye con una energía intensa pero herida, afectado por las huellas de la intervención humana. A su cauce se suman manantiales termales, caídas de agua que salpican de sacralidad el entorno, y quebradas que nutren el equilibrio ecológico.</p>
-                    </div>
-                    <div id="s5-text-block-4" class="text-block">
-                        <h3>Las Lajas: Territorio de Convergencias Sagradas</h3>
-                        <p>El Santuario de Las Lajas no solo representa una devoción mariana, sino que se asienta sobre un territorio ya consagrado por antiguas cosmovisiones indígenas. La presencia de la Piedra de los Monos, con su carga ritual prehispánica, revela una continuidad simbólica silenciada por la narrativa oficial. En este espacio confluyen la espiritualidad ancestral y la religiosidad popular, dando lugar a un sincretismo que resignifica el paisaje y sostiene memorias profundas bajo la forma cristianizada del culto.</p>
-                    </div>
+                <div class="slide5-image-overlays">
+                    <img src="images/base.png" alt="Imagen base del territorio" class="slide5-overlay-image" id="slide5-base-image">
+                    <img src="images/semana.png" alt="Imagen de Semana Santa" class="slide5-overlay-image" data-image-for="semana">
+                    <img src="images/navidad.png" alt="Imagen de Navidad" class="slide5-overlay-image" data-image-for="navidad">
+                    <img src="images/quincenario.png" alt="Imagen del Quincenario" class="slide5-overlay-image" data-image-for="quincenario">
+                    <img src="images/exvotos.png" alt="Imagen de Exvotos" class="slide5-overlay-image" data-image-for="exvotos">
+                    <img src="images/barrios.png" alt="Imagen de Barrios" class="slide5-overlay-image" data-image-for="barrios">
                 </div>
+
                  <div class="slide-navigation-buttons">
-                    <span></span> 
+                    <button class="slide-prev-button" 
+                            data-prev-slide-id="slide4" 
+                            data-prev-animation="videos/slide4-animation.mp4"
+                            data-transition-video="videos/slide5-to-slide4-transition.mp4"
+                            data-prev-text="← EXVOTOS">← Anterior</button>
                     <span></span>
+                </div>
+                <div class="slide5-image-controls">
+                    <button class="slide5-control-button" data-image-target="semana">Semana</button>
+                    <button class="slide5-control-button" data-image-target="navidad">Navidad</button>
+                    <button class="slide5-control-button" data-image-target="quincenario">Quincenario</button>
+                    <button class="slide5-control-button" data-image-target="exvotos">Exvotos</button>
+                    <button class="slide5-control-button" data-image-target="barrios">Barrios</button>
                 </div>
             </div>
         </div>
 
         <button id="slide-back-to-menu-button">← Volver</button>
-
+        
         <button id="menu-info-button">i</button>
         <div id="menu-info-text-block" class="text-block">
-            <h3>Geografía Sagrada de Las Lajas</h3>
-            <p>Desde sus orígenes, el Santuario de Nuestra Señora del Rosario de Las Lajas y su entorno 
-            inmediato han configurado un territorio donde lo geográfico y lo simbólico se entrelazan, dando 
-            forma a una geografía sagrada que, como plantea Ferro Medina (2004), otorga sentido a las 
-            prácticas devocionales, los trayectos de los peregrinos y las maneras de habitar el paisaje.<br><br>
-            Este espacio se define a partir de su relato fundacional: la aparición mariana sobre la piedra Laja, 
-            que transforma el entorno natural en una manifestación espiritual. 
-            En este contexto, la presente cartilla infográfica 
-            ofrece una mirada integral del territorio, abordando 
-            su configuración físico-espacial, sus dinámicas socioculturales y su dimensión simbólica, identitaria 
-            y religiosa. Así, el poblado de Las Lajas se revela como un “territorio de lo sagrado”, donde lo físico 
-            se trasciende y el espacio se convierte en eje de memorias, experiencias y significados 
-            compartidos.<br><br>
-            El objetivo de este documento es divulgar, los eventos y celebraciones de las principales 
-            manifestaciones culturales asociadas a la Virgen del Rosario de Las Lajas: las Fiestas Patronales 
-            del Quincenario, la Semana Santa y sus peregrinaciones, las Fiestas de Navidad con el pregón 
-            navideño, y la ofrenda de exvotos placas, algodones, camándulas y velas.</p>
+            <h3>Configuración físico-espacial</h3>
+            <p>Enclavado entre montañas y al borde del río Guáitara, el Santuario de Las Lajas se erige sobre un paisaje escarpado donde confluyen agua, vegetación y memorias superpuestas. Este territorio, marcado por devociones cristianas y huellas prehispánicas como la Piedra de los Monos, condensa un sincretismo silencioso que resignifica lo natural como sagrado. Aquí, el espacio no solo es geografía, sino relato simbólico y espiritual en permanente transformación.</p>
         </div>
     </div>
 </div>
