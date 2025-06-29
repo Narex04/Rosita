@@ -7,8 +7,6 @@ html, body {
     font-family: 'Onest', Arial, sans-serif;
     background-color: #000;
     color: #333;
-
-    /* Centrar el contenedor principal */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -18,70 +16,14 @@ html, body {
     box-sizing: border-box;
 }
 
-/* El escenario principal con tamaño fijo 16:9 */
 #app-container {
-    width: 1920px;
-    height: 1080px;
-    position: relative;
+    width: 1600px;
+    height: 900px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
     overflow: hidden;
-    /* La magia de la escala se aplica con JS */
     transform-origin: center center;
-    transition: transform 0.3s ease-out;
-}
-
-/* Pantalla de entrada para fullscreen */
-#entry-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #000;
-    z-index: 10000;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: #fff;
-    text-align: center;
-    padding: 20px;
-    transition: opacity 0.5s ease-out;
-}
-#entry-overlay.hidden {
-    opacity: 0;
-    pointer-events: none;
-}
-.entry-content {
-    max-width: 600px;
-}
-.entry-content h1 {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 2.5rem;
-    font-weight: 700;
-}
-.entry-content p {
-    font-size: 1.1rem;
-    line-height: 1.6;
-    margin: 20px 0 40px 0;
-    color: rgba(255, 255, 255, 0.8);
-}
-#enter-fullscreen-button {
-    font-family: 'Onest', sans-serif;
-    background-color: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: 2px solid rgba(255, 255, 255, 0.7);
-    padding: 15px 30px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    border-radius: 30px;
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-#enter-fullscreen-button:hover {
-    background-color: rgba(255, 255, 255, 0.35);
-    transform: scale(1.05);
 }
 
 /* --- Capas de Video --- */
@@ -197,7 +139,13 @@ html, body {
     width: 100%;
     height: 100%;
 }
+/* --- REGLA NUEVA 1 --- */
 #intro-content-wrapper {
+    position: absolute;
+    left: 800px; /* Mantenemos el inicio a la izquierda */
+    right: 70px; /* AÑADIMOS el final a 70px del borde derecho */
+    width: auto; /* Dejamos que el ancho se calcule automáticamente */
+    /* ... otros estilos se mantienen igual ... */
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -206,20 +154,15 @@ html, body {
     transform: translateY(20px);
     transition: opacity 0.8s ease-out, transform 0.8s ease-out;
     text-align: left;
-    padding: 0 20px;
-    position: relative;
-    left: 50%;
-    width: auto;
-    max-width: calc(50% - 20px - 66px); /* Reemplazo de 3.44% por 66px */
-    box-sizing: border-box;
 }
+
 #intro-content-wrapper.visible {
     opacity: 1;
     transform: translateY(0);
 }
 .intro-subtitle {
     font-family: 'Montserrat', sans-serif;
-    font-size: 1.4rem;
+    font-size: 22px;
     font-weight: 300;
     color: rgba(255, 255, 255, 0.9);
     text-transform: uppercase;
@@ -228,7 +171,7 @@ html, body {
 }
 #intro-title {
     font-family: 'Montserrat', sans-serif;
-    font-size: 3.5rem;
+    font-size: 50px;
     font-weight: 700;
     color: white;
     text-shadow: 1px 1px 6px rgba(0,0,0,0.5);
@@ -241,7 +184,7 @@ html, body {
     color: white;
     border: 2px solid rgba(255, 255, 255, 0.7);
     padding: 12px 25px;
-    font-size: 1.1rem;
+    font-size: 18px;
     font-weight: bold;
     border-radius: 25px;
     cursor: pointer;
@@ -267,12 +210,14 @@ html, body {
     transform: scale(1) !important;
     box-shadow: none !important;
 }
+/* --- REGLA NUEVA 2 --- */
 #intro-disclaimer {
     position: absolute;
-    bottom: 66px; /* Reemplazo de 6.15% por 66px */
-    left: 50%;
-    width: auto;
-    max-width: calc(50% - 20px - 66px);
+    bottom: 70px;
+    left: 800px; /* Mantenemos el inicio a la izquierda */
+    right: 70px; /* AÑADIMOS el final a 70px del borde derecho */
+    width: auto; /* Dejamos que el ancho se calcule automáticamente */
+    /* ... otros estilos se mantienen igual ... */
     padding: 12px;
     background-color: rgba(0, 0, 0, 0.65);
     border-radius: 6px;
@@ -289,7 +234,7 @@ html, body {
 #intro-disclaimer p {
     font-family: 'Onest', sans-serif;
     color: rgba(255, 255, 255, 0.8);
-    font-size: 0.75rem;
+    font-size: 12px;
     text-align: left;
     line-height: 1.5;
     margin: 0;
@@ -302,8 +247,8 @@ html, body {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 1600px;
+    height: 900px;
 }
 #menu-buttons-area {
     display: none;
@@ -338,7 +283,7 @@ html, body {
     top: 100%;
     transform: translateX(-50%);
     width: 4px;
-    height: 100px;
+    height: 75px;
     background: linear-gradient( to bottom, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 100% );
     border-radius: 2px;
     z-index: -1;
@@ -347,8 +292,8 @@ html, body {
 #menu-button-1 { top: 77%; left: 20%; }
 #menu-button-2 { top: 65.5%; left: 30%; }
 #menu-button-3 { top: 65.5%; left: 54%; }
-#menu-button-4 { top: 53%; left: 75%; }
-#menu-button-5 { top: 10%; left: 50%; }
+#menu-button-4 { top: 56%; left: 72%; }
+#menu-button-5 { top: 13%; left: 50%; }
 .menu-button-icon {
     font-size: 1.5em;
     min-width: 46px;
@@ -389,9 +334,8 @@ html, body {
     transform: translate(-50%, -50%) !important;
 }
 #menu-info-button {
-    font-family: 'Onest', sans-serif;
     position: absolute;
-    bottom: 66px;
+    bottom: 70px;
     left: 50%;
     transform: translateX(-50%);
     width: 40px;
@@ -459,20 +403,18 @@ html, body {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 90%;
-    max-width: 700px;
+    width: 700px;
     max-height: 70vh;
     z-index: 115;
     overflow-y: auto;
 }
 #speech-bubble {
     position: absolute;
-    top: 66px;
-    right: 66px;
+    top: 70px;
+    right: 70px;
     width: 450px;
-    max-width: 450px;
     z-index: 105;
-    font-size: 0.9rem;
+    font-size: 14px;
     opacity: 0;
     visibility: hidden;
     transform: translateY(20px);
@@ -498,13 +440,13 @@ html, body {
 
 /* --- Elementos Interactivos de las Diapositivas --- */
 #slide-interactive-elements {
-    display: none;
     position: absolute;
     top: 0;
     left: 0;
-    padding: 66px 66px;
     width: 100%;
     height: 100%;
+    padding: 70px;
+    display: none;
     box-sizing: border-box;
 }
 .slide-specific-content {
@@ -513,21 +455,24 @@ html, body {
     height: 100%;
     flex-direction: column;
     align-items: flex-end;
-    justify-content: space-between;
+    justify-content: center;
     position: relative;
 }
 .slide-specific-content.active {
     display: flex;
 }
+
 .slide-right-column {
-    position: relative;
+    position: absolute;
+    top: 0;
+    right: 0;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     gap: 25px;
-    width: 48%; /* Ancho de la columna derecha */
-    margin-left: auto;
+    width: 700px;
 }
+
 .slide-title-container {
     background-color: rgba(250, 250, 250, 0.93);
     color: #333;
@@ -549,9 +494,10 @@ html, body {
     font-family: 'Onest', sans-serif;
     font-weight: 700;
     color: #1a1a1a;
-    font-size: 1.3rem;
+    font-size: 21px;
     line-height: 1.4;
 }
+
 .slide-main-interactive-area {
     display: flex;
     flex-direction: row; 
@@ -559,11 +505,12 @@ html, body {
     width: 100%;
     justify-content: flex-end;
 }
+
 .slide-main-interactive-area > .text-block { 
     position: absolute;
     top: 0;
     left: 0;
-    width: calc(100% - 100px); 
+    width: calc(100% - 60px); 
     height: auto;
     max-height: none;
     transform: translateX(20px) scale(0.95);
@@ -582,6 +529,7 @@ html, body {
 .slide-main-interactive-area > .text-block.visible { 
     transform: translateX(0) scale(1); 
 }
+
 .circle-buttons-container { 
     display: flex; 
     flex-direction: column; 
@@ -596,11 +544,11 @@ html, body {
 .slide-navigation-buttons {
     display: flex;
     justify-content: space-between; 
+    box-sizing: border-box;
     position: absolute;
     bottom: 0;
-    left: -66px; /* Ajustar por el padding del contenedor padre */
-    right: 0;
-    width: calc(100% + 66px); /* Compensar el padding */
+    left: 0;
+    width: 100%;
 }
 .slide-next-button, .slide-prev-button,
 #slide-back-to-menu-button, #menu-back-to-intro-button {
@@ -609,7 +557,7 @@ html, body {
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.5);
     padding: 10px 20px;
-    font-size: 0.95rem;
+    font-size: 15px;
     font-weight: bold;
     border-radius: 22px;
     cursor: pointer;
@@ -641,8 +589,8 @@ html, body {
 }
 #slide-back-to-menu-button, #menu-back-to-intro-button {
     position: absolute;
-    top: 66px;
-    left: 66px;
+    top: 70px;
+    left: 70px;
     display: none;
     z-index: 120;
 }
@@ -683,20 +631,24 @@ html, body {
     box-shadow: none !important;
     transform: scale(1) !important;
 }
+
+/* === INICIO DEL CAMBIO === */
 .slide2-controls-container {
     position: absolute;
-    bottom: 66px;
+    bottom: 0; /* Alineado al margen inferior estándar */
     left: 50%;
     transform: translateX(-50%);
     z-index: 110;
 }
+/* === FIN DEL CAMBIO === */
+
 #toggle-christmas-light-button {
     font-family: 'Onest', sans-serif;
     background-color: rgba(60, 60, 60, 0.6);
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.5);
     padding: 10px 20px;
-    font-size: 0.95rem;
+    font-size: 15px;
     font-weight: bold;
     border-radius: 22px;
     cursor: pointer;
@@ -746,7 +698,7 @@ html, body {
     gap: 15px;
     width: 100%;
     position: absolute;
-    bottom: 66px;
+    bottom: 70px;
     left: 0;
     right: 0;
     padding: 0;
@@ -766,7 +718,7 @@ html, body {
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.5);
     padding: 10px 20px;
-    font-size: 0.95rem;
+    font-size: 15px;
     font-weight: bold;
     border-radius: 22px;
     cursor: pointer;

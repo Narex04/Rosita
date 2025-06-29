@@ -1,10 +1,23 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Referencias a Elementos del DOM ---
-    const entryOverlay = document.getElementById('entry-overlay');
-    const enterFullscreenButton = document.getElementById('enter-fullscreen-button');
     const appContainer = document.getElementById('app-container');
 
-    // El resto de tus referencias permanecen igual
+    function scaleAndCenterApp() {
+        const targetWidth = 1600;
+        const targetHeight = 900;
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+
+        const scaleX = windowWidth / targetWidth;
+        const scaleY = windowHeight / targetHeight;
+        
+        const scale = Math.min(scaleX, scaleY);
+
+        if (appContainer) {
+            appContainer.style.transform = `translate(-50%, -50%) scale(${scale})`;
+        }
+    }
+
+    // --- Elementos del DOM ---
     const staticFrameImage = document.getElementById('static-frame-image');
     const overlayImageLayer = document.getElementById('overlay-image-layer');
     const lajasOverlayImage = document.getElementById('lajas-overlay-image');
@@ -41,8 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const slide2ControlsContainer = document.querySelector('.slide2-controls-container');
     const speechBubble = document.getElementById('speech-bubble');
 
-    // --- Variables de Estado ---
-    let appInitialized = false;
+
+// --- Variables de Estado ---
     let currentSceneVideoElement = introVideoElement;
     let currentUiLayer = introLayer;
     let pendingAction = null;
@@ -62,76 +75,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const SLIDE2_NIGHT_VIDEO = "videos/night-animation.mp4";
     const SLIDE2_TO_NIGHT_TRANSITION = "videos/slide2-to-night-transition.mp4";
     const NIGHT_TO_SLIDE2_TRANSITION = "videos/night-to-slide2-transition.mp4";
-    
-    // --- NUEVA LÓGICA DE ESCALADO ---
-    function scaleAndPositionApp() {
-        const stageWidth = 1920;
-        const stageHeight = 1080;
-        const windowWidth = window.innerWidth;
-        const windowHeight = window.innerHeight;
 
-        const scaleX = windowWidth / stageWidth;
-        const scaleY = windowHeight / stageHeight;
-        const scale = Math.min(scaleX, scaleY);
 
-        if (appContainer) {
-            appContainer.style.transform = `scale(${scale})`;
-        }
-    }
-
-    // --- NUEVA LÓGICA DE ENTRADA ---
-    function enterExperience() {
-        if (appInitialized) return;
-
-        // Ocultar el overlay de entrada
-        if (entryOverlay) {
-            entryOverlay.classList.add('hidden');
-        }
-
-        // Intentar entrar en pantalla completa y modo apaisado
-        const docEl = document.documentElement;
-        if (docEl.requestFullscreen) {
-            docEl.requestFullscreen().catch(err => console.error(err));
-        } else if (docEl.webkitRequestFullscreen) { /* Safari */
-            docEl.webkitRequestFullscreen().catch(err => console.error(err));
-        } else if (docEl.msRequestFullscreen) { /* IE11 */
-            docEl.msRequestFullscreen().catch(err => console.error(err));
-        }
-
-        if (screen.orientation && screen.orientation.lock) {
-            screen.orientation.lock('landscape').catch(err => console.error(err));
-        }
-
-        // Iniciar la aplicación principal
-        initializeApp();
-        appInitialized = true;
-    }
-
-    // --- Lógica de la aplicación principal (modificada para no auto-iniciarse) ---
-    async function initializeApp() {
-        uiOverlayLayer.classList.remove('active');
-        menuVideoLayer.classList.remove('active');
-        slideVideoLayer.classList.remove('active');
-        transitionVideoLayer.classList.remove('active');
-        ensureNoActiveSlideElements();
-        menuBackToIntroButton.style.display = 'none';
-        staticFrameImage.classList.remove('blurred');
-        overlayImageLayer.classList.remove('visible');
-        overlayImageLayer.classList.remove('hiding');
-        try {
-            const introSource = introVideoElement.querySelector('source');
-            if (introSource && introSource.src) {
-                 await ensureVideoCanPlay(introVideoElement);
-            }
-            actuallyShowIntroUi();
-        } catch (e) {
-            console.error("[initializeApp] Error during initial video preparation or showing intro UI:", e);
-            actuallyShowIntroUi();
-            setControlsWaitingState(false);
-        }
-    }
-
-    // --- El resto de tus funciones (sin cambios en su lógica interna) ---
+    // --- Funciones de Video y Transición ---
     async function playVideo(videoElement, loop = false) {
         if (videoElement) {
             if (videoElement.loop === true && loop === true && !videoElement.paused && videoElement.currentTime > 0) {
@@ -287,6 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     toggleChristmasLightButton.textContent = "Apagar la Navidad";
                     setControlsWaitingState(false);
                     
+                    // === INICIO DE LA CORRECCIÓN ===
                     const slide2Content = document.querySelector('.slide-specific-content[data-content-for-slide="slide2"]');
                     if (slide2Content) {
                         const titleContainer = slide2Content.querySelector('.slide-title-container');
@@ -294,8 +241,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             titleContainer.classList.add('visible');
                         }
                     }
-
+                    // === FIN DE LA CORRECCIÓN ===
                     finalScenePromise = Promise.resolve();
+
                 } else if (actionToExecute.type === 'PLAY_SLIDE2_DAY_VIDEO') {
                     slideVideoLayer.classList.add('active');
                     await prepareVideoElement(currentSlideVideoElement, SLIDE2_DAY_VIDEO);
@@ -307,6 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     toggleChristmasLightButton.textContent = "Encender la Navidad";
                     setControlsWaitingState(false);
 
+                    // === INICIO DE LA CORRECCIÓN ===
                     const slide2Content = document.querySelector('.slide-specific-content[data-content-for-slide="slide2"]');
                     if (slide2Content) {
                         const titleContainer = slide2Content.querySelector('.slide-title-container');
@@ -314,8 +263,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             titleContainer.classList.add('visible');
                         }
                     }
-
+                    // === FIN DE LA CORRECCIÓN ===
                     finalScenePromise = Promise.resolve();
+                    
                 }
                 else if (actionToExecute.type === 'PLAY_SLIDE_AFTER_SLIDE_TRANSITION' && targetSceneAfterTransition) {
                     finalScenePromise = prepareAndShowTargetSlide(targetSceneAfterTransition.slideId, targetSceneAfterTransition.slideAnimation, true);
@@ -762,6 +712,8 @@ document.addEventListener('DOMContentLoaded', () => {
         menuInfoButton.style.display = 'block';
         menuBackToIntroButton.style.display = 'block';
         ensureNoActiveSlideElements();
+        uiOverlayLayer.style.justifyContent = 'center';
+        uiOverlayLayer.style.alignItems = 'center';
         setTimeout(() => {
             if (speechBubble) speechBubble.classList.add('visible');
         }, 100);
@@ -837,10 +789,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- Event Listeners Principales ---
-    if (enterFullscreenButton) {
-        enterFullscreenButton.addEventListener('click', enterExperience);
-    }
-
     toggleChristmasLightButton.addEventListener('click', () => {
         if (isTransitioning || toggleChristmasLightButton.classList.contains('waiting')) return;
         setControlsWaitingState(true);
@@ -975,7 +923,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Configuración Inicial ---
-    window.addEventListener('resize', scaleAndPositionApp);
-    scaleAndPositionApp(); // Escalar al cargar por primera vez
+    async function initializeApp() {
+        scaleAndCenterApp();
+        window.addEventListener('resize', scaleAndCenterApp);
+
+        uiOverlayLayer.classList.remove('active');
+        menuVideoLayer.classList.remove('active');
+        slideVideoLayer.classList.remove('active');
+        transitionVideoLayer.classList.remove('active');
+        ensureNoActiveSlideElements();
+        menuBackToIntroButton.style.display = 'none';
+        staticFrameImage.classList.remove('blurred');
+        overlayImageLayer.classList.remove('visible');
+        overlayImageLayer.classList.remove('hiding');
+        try {
+            const introSource = introVideoElement.querySelector('source');
+            if (introSource && introSource.src) {
+                 await ensureVideoCanPlay(introVideoElement);
+            }
+            actuallyShowIntroUi();
+        } catch (e) {
+            console.error("[initializeApp] Error during initial video preparation or showing intro UI:", e);
+            actuallyShowIntroUi();
+            setControlsWaitingState(false);
+        }
+    }
+
+    initializeApp();
 });
