@@ -5,19 +5,83 @@ html, body {
     height: 100%;
     overflow: hidden;
     font-family: 'Onest', Arial, sans-serif;
-    background-color: #111;
+    background-color: #000;
     color: #333;
+
+    /* Centrar el contenedor principal */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 *, *::before, *::after {
     box-sizing: border-box;
 }
 
+/* El escenario principal con tamaño fijo 16:9 */
 #app-container {
-    width: 100%;
-    height: 100vh;
+    width: 1920px;
+    height: 1080px;
     position: relative;
     overflow: hidden;
+    /* La magia de la escala se aplica con JS */
+    transform-origin: center center;
+    transition: transform 0.3s ease-out;
+}
+
+/* Pantalla de entrada para fullscreen */
+#entry-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+    transition: opacity 0.5s ease-out;
+}
+#entry-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+.entry-content {
+    max-width: 600px;
+}
+.entry-content h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+.entry-content p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin: 20px 0 40px 0;
+    color: rgba(255, 255, 255, 0.8);
+}
+#enter-fullscreen-button {
+    font-family: 'Onest', sans-serif;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 30px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+#enter-fullscreen-button:hover {
+    background-color: rgba(255, 255, 255, 0.35);
+    transform: scale(1.05);
 }
 
 /* --- Capas de Video --- */
@@ -34,14 +98,10 @@ html, body {
 .video-layer.active {
     display: block;
 }
-
-/* z-index para el orden de las capas de video */
 #intro-video-layer { z-index: 5; }
 #menu-video-layer { z-index: 10; }
 #transition-video-layer { z-index: 20; }
 #slide-video-layer { z-index: 30; }
-
-
 .fullscreen-video {
     width: 100%;
     height: 100%;
@@ -51,7 +111,6 @@ html, body {
 .fullscreen-video.blurred {
     filter: blur(10px);
 }
-
 .slide-video-buffer, #transition-video-element {
     position: absolute;
     top: 0;
@@ -67,7 +126,7 @@ html, body {
     z-index: 10;
 }
 
-/* --- Capa del Marco Estático --- */
+/* --- Capas Estáticas y de Intro --- */
 #static-frame-layer {
     position: absolute;
     top: 0;
@@ -78,19 +137,15 @@ html, body {
     pointer-events: none;
     overflow: hidden;
 }
-
 #static-frame-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
     transition: filter 0.5s ease-in-out;
 }
-
 #static-frame-image.blurred {
     filter: blur(10px);
 }
-
-/* --- Capa para la Imagen Superpuesta de Intro --- */
 #overlay-image-layer {
     position: fixed;
     top: 0;
@@ -105,27 +160,22 @@ html, body {
     opacity: 0;
     transform: translateY(100%);
 }
-
 #overlay-image-layer.visible {
     opacity: 1;
     transform: translateY(0%);
     transition: transform 1s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.8s ease-out;
 }
-
 #overlay-image-layer.hiding {
     opacity: 0;
     transform: translateY(100%);
     transition: transform 0.7s cubic-bezier(0.55, 0.055, 0.675, 0.19), opacity 0.5s ease-in;
 }
-
 #lajas-overlay-image {
     display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
-
-/* --- Capas de UI (Intro y Overlay Principal) --- */
 .ui-layer {
     position: absolute;
     top: 0;
@@ -139,8 +189,6 @@ html, body {
 .ui-layer.active {
     display: flex;
 }
-
-/* --- Estilos de la Capa de Introducción --- */
 #intro-layer.active {
     display: flex;
     flex-direction: column;
@@ -149,7 +197,6 @@ html, body {
     width: 100%;
     height: 100%;
 }
-
 #intro-content-wrapper {
     display: flex;
     flex-direction: column;
@@ -160,18 +207,16 @@ html, body {
     transition: opacity 0.8s ease-out, transform 0.8s ease-out;
     text-align: left;
     padding: 0 20px;
-
     position: relative;
     left: 50%;
     width: auto;
-    max-width: calc(50% - 20px - (3.44%));
+    max-width: calc(50% - 20px - 66px); /* Reemplazo de 3.44% por 66px */
     box-sizing: border-box;
 }
 #intro-content-wrapper.visible {
     opacity: 1;
     transform: translateY(0);
 }
-
 .intro-subtitle {
     font-family: 'Montserrat', sans-serif;
     font-size: 1.4rem;
@@ -181,7 +226,6 @@ html, body {
     letter-spacing: 1.5px;
     margin: 0 0 5px 0;
 }
-
 #intro-title {
     font-family: 'Montserrat', sans-serif;
     font-size: 3.5rem;
@@ -191,7 +235,6 @@ html, body {
     margin: 0;
     line-height: 1.2;
 }
-
 #start-experience-button {
     font-family: 'Onest', sans-serif;
     background-color: rgba(255, 255, 255, 0.2);
@@ -207,7 +250,6 @@ html, body {
     box-shadow: 0 0 0 rgba(255,255,255,0);
     margin-top: 30px;
     align-self: flex-start;
-    
     opacity: 1;
     visibility: visible;
     transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease, opacity 0.3s ease-out;
@@ -225,13 +267,12 @@ html, body {
     transform: scale(1) !important;
     box-shadow: none !important;
 }
-
 #intro-disclaimer {
     position: absolute;
-    bottom: calc(6.15% + 20px);
+    bottom: 66px; /* Reemplazo de 6.15% por 66px */
     left: 50%;
     width: auto;
-    max-width: calc(50% - 20px - (3.44%));
+    max-width: calc(50% - 20px - 66px);
     padding: 12px;
     background-color: rgba(0, 0, 0, 0.65);
     border-radius: 6px;
@@ -253,25 +294,17 @@ html, body {
     line-height: 1.5;
     margin: 0;
 }
-
-
-/* --- Menú Principal (dentro de #ui-overlay-layer) --- */
 #ui-overlay-layer {
     justify-content: center;
     align-items: center;
 }
-
 #menu-anchor-container {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100vw;
-    height: 56.25vw;
-    max-height: 100vh;
-    max-width: 177.77vh;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
-
 #menu-buttons-area {
     display: none;
     position: absolute;
@@ -280,63 +313,42 @@ html, body {
     width: 100%;
     height: 100%;
 }
-
 .menu-button {
     position: absolute;
     transform: translate(-50%, -50%);
     display: flex;
     align-items: center;
     gap: 0;
-    
     height: 60px;
     border-radius: 30px;
     padding-left: 7px;
     padding-right: 7px;
-
     background-color: white;
     border: none;
     cursor: pointer;
     box-shadow: 0 0 0 rgba(255, 255, 255, 0);
     opacity: 1;
     visibility: visible;
-    
-    transition: padding 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-                box-shadow 0.3s ease,
-                opacity 0.3s ease-out;
+    transition: padding 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease, opacity 0.3s ease-out;
 }
-
 .menu-button::before {
     content: '';
     position: absolute;
     left: 50%;
     top: 100%;
     transform: translateX(-50%);
-    
     width: 4px;
     height: 100px;
-    
-    background: linear-gradient(
-        to bottom, 
-        rgba(255, 255, 255, 0.8) 0%,
-        rgba(255, 255, 255, 0) 100%
-    );
-    
+    background: linear-gradient( to bottom, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 100% );
     border-radius: 2px;
     z-index: -1;
 }
-
-#menu-button-5::before {
-    display: none;
-}
-
-
+#menu-button-5::before { display: none; }
 #menu-button-1 { top: 77%; left: 20%; }
 #menu-button-2 { top: 65.5%; left: 30%; }
 #menu-button-3 { top: 65.5%; left: 54%; }
 #menu-button-4 { top: 53%; left: 75%; }
 #menu-button-5 { top: 10%; left: 50%; }
-
-
 .menu-button-icon {
     font-size: 1.5em;
     min-width: 46px;
@@ -344,54 +356,42 @@ html, body {
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-shrink: 0; 
+    flex-shrink: 0;
 }
-
 .menu-button-text {
     font-family: 'Onest', sans-serif;
     font-size: 1rem;
     font-weight: bold;
     color: #333;
     white-space: nowrap;
-    
     opacity: 0;
     max-width: 0;
     margin-left: 0;
     overflow: hidden;
-    
-    transition: max-width 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-                margin-left 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-                opacity 0.2s ease-out 0.1s;
+    transition: max-width 0.4s cubic-bezier(0.25, 1, 0.5, 1), margin-left 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease-out 0.1s;
 }
-
-
 .menu-button:hover:not(.waiting) {
     padding-right: 25px;
     box-shadow: 0 0 20px 8px rgba(255, 255, 255, 0.85), 0 0 35px 15px rgba(255, 255, 255, 0.6);
 }
-
 .menu-button:hover:not(.waiting) .menu-button-text {
     opacity: 1;
     max-width: 300px;
     margin-left: 10px;
     transition-delay: 0.1s;
 }
-
-
 .menu-button.waiting {
     opacity: 0 !important;
     visibility: hidden !important;
     transition: opacity 0.3s ease-out, visibility 0s linear 0.3s !important;
-    cursor: default !important; 
-    box-shadow: none !important; 
-    transform: translate(-50%, -50%) !important; 
+    cursor: default !important;
+    box-shadow: none !important;
+    transform: translate(-50%, -50%) !important;
 }
-
-/* --- Botón de Información y Nube de Diálogo --- */
 #menu-info-button {
     font-family: 'Onest', sans-serif;
     position: absolute;
-    bottom: calc(6.15% + 20px);
+    bottom: 66px;
     left: 50%;
     transform: translateX(-50%);
     width: 40px;
@@ -429,7 +429,6 @@ html, body {
     background-color: rgba(90, 90, 90, 0.8);
     box-shadow: 0 0 8px 2px rgba(255, 255, 255, 0.3);
 }
-
 .text-block {
     font-family: 'Onest', sans-serif;
     background-color: rgba(250, 250, 250, 0.93);
@@ -440,22 +439,13 @@ html, body {
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease-out, visibility 0s linear 0.3s, transform 0.3s ease-out;
-    
-    /* CORRECCIÓN 2: Ocultar scrollbar por defecto en todos los text-block */
     overflow-y: hidden;
-    scrollbar-width: none; /* Firefox */
+    scrollbar-width: none;
 }
-.text-block::-webkit-scrollbar {
-    display: none; /* Safari y Chrome */
-}
-
-.text-block h3 {
-    font-family: 'Onest', sans-serif;
-    font-weight: 700;
-    color: #1a1a1a;
-    font-size: 1.3rem;
-    margin-top: 0;
-    margin-bottom: 10px;
+.text-block::-webkit-scrollbar { display: none; }
+.text-block p {
+    line-height: 1.6;
+    margin: 0;
 }
 .text-block.visible {
     opacity: 1;
@@ -464,7 +454,6 @@ html, body {
     transition-delay: 0s;
     transition: opacity 0.4s ease-out, visibility 0s linear 0s, transform 0.4s ease-out;
 }
-
 #menu-info-text-block {
     position: absolute;
     left: 50%;
@@ -474,42 +463,32 @@ html, body {
     max-width: 700px;
     max-height: 70vh;
     z-index: 115;
-    /* Permitir scroll si es necesario */
-    overflow-y: auto; 
+    overflow-y: auto;
 }
-
 #speech-bubble {
     position: absolute;
-    top: calc(6.15% + 20px);
-    right: calc(3.44% + 20px);
-    
-    width: 25%;
+    top: 66px;
+    right: 66px;
+    width: 450px;
     max-width: 450px;
     z-index: 105;
-
     font-size: 0.9rem;
-    line-height: 1.6;
-    
     opacity: 0;
     visibility: hidden;
-    /* CORRECCIÓN 1: Animación de abajo hacia arriba */
     transform: translateY(20px);
     transition: opacity 0.5s ease-out, transform 0.5s ease-out, visibility 0s linear 0.5s;
 }
-
 #speech-bubble::after {
     content: '';
     position: absolute;
     bottom: -15px;
     right: 40px;
-    
     width: 0;
     height: 0;
     border-left: 15px solid transparent;
     border-right: 15px solid transparent;
     border-top: 15px solid rgba(250, 250, 250, 0.93);
 }
-
 #speech-bubble.visible {
     opacity: 1;
     visibility: visible;
@@ -521,47 +500,87 @@ html, body {
 #slide-interactive-elements {
     display: none;
     position: absolute;
+    top: 0;
     left: 0;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    padding-left: calc(3.44% + 20px);
-    padding-right: calc(3.44% + 20px);
-    padding-top: 20px;
-    padding-bottom: 0;
+    padding: 66px 66px;
     width: 100%;
     height: 100%;
     box-sizing: border-box;
 }
-
 .slide-specific-content {
     display: none;
     width: 100%;
     height: 100%;
     flex-direction: column;
     align-items: flex-end;
-    justify-content: center;
+    justify-content: space-between;
     position: relative;
 }
 .slide-specific-content.active {
     display: flex;
 }
-
+.slide-right-column {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 25px;
+    width: 48%; /* Ancho de la columna derecha */
+    margin-left: auto;
+}
+.slide-title-container {
+    background-color: rgba(250, 250, 250, 0.93);
+    color: #333;
+    padding: 20px 25px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    width: 100%;
+    box-sizing: border-box;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+}
+.slide-title-container.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+.slide-title-container h3 {
+    margin: 0;
+    font-family: 'Onest', sans-serif;
+    font-weight: 700;
+    color: #1a1a1a;
+    font-size: 1.3rem;
+    line-height: 1.4;
+}
 .slide-main-interactive-area {
     display: flex;
     flex-direction: row; 
-    gap: 30px; 
-    width: auto;
-    
-    position: absolute; 
-    /* CORRECCIÓN: Alinear a la misma altura que la nube de diálogo del menú */
-    top: calc(6.15% + 20px);
-    right: 0; 
-    
-    transform: translateY(0%); 
-    overflow: visible; 
-    max-height: 70%; 
-    align-items: flex-start;
+    position: relative;
+    width: 100%;
+    justify-content: flex-end;
+}
+.slide-main-interactive-area > .text-block { 
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(100% - 100px); 
+    height: auto;
+    max-height: none;
+    transform: translateX(20px) scale(0.95);
+}
+.slide-main-interactive-area > .text-block::after {
+    content: '';
+    position: absolute;
+    top: 22px; 
+    left: 100%; 
+    width: 0;
+    height: 0;
+    border-top: 15px solid transparent;
+    border-bottom: 15px solid transparent;
+    border-left: 15px solid rgba(250, 250, 250, 0.93);
+}
+.slide-main-interactive-area > .text-block.visible { 
+    transform: translateX(0) scale(1); 
 }
 .circle-buttons-container { 
     display: flex; 
@@ -569,71 +588,20 @@ html, body {
     gap: 25px; 
     padding: 35px;
     margin: -35px;
-    max-height: 100%; 
-    overflow-y: auto; 
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,0.4) rgba(0,0,0,0.2);
     flex-shrink: 0; 
-    order: 2;
     position: relative;
-}
-
-/* CORRECCIÓN: Aplicar el estilo de nube de diálogo a los text-block de los slides */
-.slide-main-interactive-area > .text-block { 
-    /* Ajustar 'right' para que esté más cerca del botón */
-    right: 85px; 
-    
-    /* Tomar el mismo ancho que la nube de diálogo del menú */
-    width: 25%;
-    max-width: 450px;
-    height: auto; /* Altura automática */
-    max-height: none; /* Quitar restricción de altura */
-
-    /* Posicionamiento y animación de entrada */
-    top: 0; 
-    transform: translateX(20px) scale(0.95);
-    order: 1;
-    
-    /* Estilos heredados de .text-block ya están bien, pero podemos añadir el pico */
-    position: relative; /* Necesario para el pseudo-elemento */
-}
-
-/* Pico para los recuadros de texto de los slides */
-.slide-main-interactive-area > .text-block::after {
-    content: '';
-    position: absolute;
-    top: 22px; /* Alinear verticalmente con el centro del primer botón (60px / 2 - 8px) */
-    right: -15px; /* Lo saca por el lado derecho */
-    
-    /* Forma del triángulo apuntando a la izquierda */
-    width: 0;
-    height: 0;
-    border-top: 15px solid transparent;
-    border-bottom: 15px solid transparent;
-    border-left: 15px solid rgba(250, 250, 250, 0.93);
-}
-
-.slide-main-interactive-area > .text-block.visible { 
-    transform: translateX(0) scale(1); 
+    z-index: 2;
 }
 
 .slide-navigation-buttons {
     display: flex;
     justify-content: space-between; 
-    padding: 0; 
-    box-sizing: border-box;
-    margin-top: auto; 
-    flex-shrink: 0;
     position: absolute;
-    bottom: calc(6.15% + 20px); 
-    left: 0;
+    bottom: 0;
+    left: -66px; /* Ajustar por el padding del contenedor padre */
     right: 0;
-    width: auto;
+    width: calc(100% + 66px); /* Compensar el padding */
 }
-
-/* ... (El resto del CSS no necesita cambios) ... */
-
-/* Estilos Unificados para Botones de Navegación */
 .slide-next-button, .slide-prev-button,
 #slide-back-to-menu-button, #menu-back-to-intro-button {
     font-family: 'Onest', sans-serif;
@@ -652,7 +620,6 @@ html, body {
     visibility: visible;
     transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease, opacity 0.3s ease-out;
 }
-
 .slide-next-button:hover:not(.waiting),
 .slide-prev-button:hover:not(.waiting),
 #slide-back-to-menu-button:hover:not(.waiting),
@@ -661,7 +628,6 @@ html, body {
     transform: scale(1.05);
     box-shadow: 0 0 12px 4px rgba(255, 255, 255, 0.45);
 }
-
 .slide-next-button.waiting,
 .slide-prev-button.waiting,
 #slide-back-to-menu-button.waiting,
@@ -673,15 +639,13 @@ html, body {
     transform: scale(1) !important;
     box-shadow: none !important;
 }
-
 #slide-back-to-menu-button, #menu-back-to-intro-button {
     position: absolute;
-    top: calc(6.15% + 20px);
-    left: calc(3.44% + 20px);
+    top: 66px;
+    left: 66px;
     display: none;
     z-index: 120;
 }
-
 .circle-button {
     font-family: 'Onest', sans-serif;
     width: 45px;
@@ -719,15 +683,13 @@ html, body {
     box-shadow: none !important;
     transform: scale(1) !important;
 }
-
 .slide2-controls-container {
     position: absolute;
-    bottom: calc(6.15% + 20px);
+    bottom: 66px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 110;
 }
-
 #toggle-christmas-light-button {
     font-family: 'Onest', sans-serif;
     background-color: rgba(60, 60, 60, 0.6);
@@ -745,13 +707,11 @@ html, body {
     opacity: 1;
     visibility: visible;
 }
-
 #toggle-christmas-light-button:hover:not(.waiting) {
     background-color: rgba(80, 80, 80, 0.75);
     transform: scale(1.05);
     box-shadow: 0 0 12px 4px rgba(255, 255, 255, 0.45);
 }
-
 #toggle-christmas-light-button.waiting {
     opacity: 0 !important;
     visibility: hidden !important;
@@ -760,8 +720,6 @@ html, body {
     transform: scale(1) !important;
     box-shadow: none !important;
 }
-
-/* --- Estilos para las capas de imágenes del Slide 5 --- */
 .slide5-image-overlays {
     position: absolute;
     top: 0;
@@ -771,7 +729,6 @@ html, body {
     z-index: 40;
     pointer-events: none;
 }
-
 .slide5-overlay-image {
     position: absolute;
     top: 0;
@@ -782,18 +739,14 @@ html, body {
     opacity: 0;
     transition: opacity 0.5s ease-in-out;
 }
-
-.slide5-overlay-image.visible {
-    opacity: 1;
-}
-
+.slide5-overlay-image.visible { opacity: 1; }
 .slide5-image-controls {
     display: flex;
     justify-content: center;
     gap: 15px;
     width: 100%;
     position: absolute;
-    bottom: calc(6.15% + 20px);
+    bottom: 66px;
     left: 0;
     right: 0;
     padding: 0;
@@ -807,7 +760,6 @@ html, body {
     opacity: 1;
     pointer-events: auto;
 }
-
 .slide5-control-button {
     font-family: 'Onest', sans-serif;
     background-color: rgba(60, 60, 60, 0.6);
@@ -823,13 +775,11 @@ html, body {
     transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease, opacity 0.3s ease;
     box-shadow: 0 0 0 rgba(255,255,255,0);
 }
-
 .slide5-control-button:hover:not(.active) {
     background-color: rgba(80, 80, 80, 0.75);
     transform: scale(1.05);
     box-shadow: 0 0 12px 4px rgba(255, 255, 255, 0.45);
 }
-
 .slide5-control-button.active {
     background-color: #fff;
     color: #333;

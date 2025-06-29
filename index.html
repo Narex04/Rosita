@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Infografía Animada Las Lajas</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,31 +13,35 @@
 </head>
 <body>
 
+<!-- Pantalla de Entrada para Fullscreen y Orientación -->
+<div id="entry-overlay">
+    <div class="entry-content">
+        <h1>Una Vista del Patrimonio</h1>
+        <p>Para una mejor experiencia, por favor usa el modo de pantalla completa y rota tu dispositivo a horizontal.</p>
+        <button id="enter-fullscreen-button">INICIAR EXPERIENCIA</button>
+    </div>
+</div>
+
+<!-- Contenedor Principal de la Aplicación (El Escenario) -->
 <div id="app-container">
-    <!-- Capa de Video para la Introducción -->
+    <!-- Capas de Video -->
     <div id="intro-video-layer" class="video-layer active">
         <video autoplay muted playsinline loop class="fullscreen-video" id="intro-video-element">
             <source src="videos/intro-background.mp4" type="video/mp4">
             Tu navegador no soporta videos HTML5.
         </video>
     </div>
-
-    <!-- Capa de Video de Fondo del Menú -->
     <div id="menu-video-layer" class="video-layer">
         <video muted playsinline loop class="fullscreen-video" id="menu-video-element">
             <source src="videos/menu-background.mp4" type="video/mp4">
             Tu navegador no soporta videos HTML5.
         </video>
     </div>
-
-    <!-- Capa de Video de Transición Dedicada -->
     <div id="transition-video-layer" class="video-layer">
         <video muted playsinline class="fullscreen-video" id="transition-video-element">
             Tu navegador no soporta videos HTML5.
         </video>
     </div>
-
-    <!-- Capa de Video de Fondo de las Diapositivas con Doble Buffer -->
     <div id="slide-video-layer" class="video-layer">
         <video muted playsinline class="fullscreen-video slide-video-buffer" id="slide-video-buffer-1">
             Tu navegador no soporta videos HTML5.
@@ -47,17 +51,13 @@
         </video>
     </div>
 
-    <!-- Capa para el Marco Estático -->
+    <!-- Capas Estáticas y de Intro -->
     <div id="static-frame-layer">
         <img src="images/static-frame.png" alt="Marco Estático" id="static-frame-image">
     </div>
-
-    <!-- Capa para la Imagen Superpuesta de Intro -->
     <div id="overlay-image-layer">
         <img src="images/lajas.png" alt="Imagen Superpuesta Las Lajas" id="lajas-overlay-image">
     </div>
-
-    <!-- Capa de Introducción (UI) -->
     <div id="intro-layer" class="ui-layer active">
         <div id="intro-content-wrapper">
             <p class="intro-subtitle">CARTILLA INFOGRÁFICA DIGITAL</p>
@@ -117,7 +117,6 @@
                 </button>
             </div>
         </div>
-
         <div id="speech-bubble" class="text-block">
             <p>¡Hola! Soy Rosita, y hace mucho tiempo, una tormenta nos llevó a mi mamá María Mueses y a mí a una cueva en medio de las montañas caminando a Potosí. Yo era mudita, pero ese día le hablé a mi mamá por primera vez: le dije: “Mamita, la mestiza me llama” y mi mamá quedó con la boca abierta, como si algo pasó.<br><br>Después de que yo hablé, la cueva se hizo bonita y mucha gente empezó a visitarla, porque la Mamita de Las Lajas hizo su primer milagro… ¡Me hizo hablar!... ¡soy su primer milagro!. Hoy… te muestro lo que vivimos con mucha devoción y amor a la Virgen de las Lajas, ¡acompáñame por esta aventura!<br><br>¡Elige la festividad que quieras explorar!</p>
         </div>
@@ -125,15 +124,20 @@
         <div id="slide-interactive-elements">
             <!-- Contenido para Slide 1: Semana Santa -->
             <div class="slide-specific-content" data-content-for-slide="slide1">
-                <div class="slide-main-interactive-area">
-                    <div class="circle-buttons-container">
-                        <button class="circle-button" data-text-target="s1-text-block-1">1</button>
-                        <button class="circle-button" data-text-target="s1-text-block-2">2</button>
-                        <button class="circle-button" data-text-target="s1-text-block-3">3</button>
+                <div class="slide-right-column">
+                    <div class="slide-title-container">
+                        <h3>Semana Santa, Celebraciones Litúrgicas y Peregrinaciones en Las Lajas</h3>
                     </div>
-                    <div id="s1-text-block-1" class="text-block"><h3>Semana Santa, Celebraciones Litúrgicas y Peregrinaciones en Las Lajas</h3><p>¿Sabe qué? Le voy a contar cómo es la Semana Santa acá en Las Lajas, que es bien linda y llena de cosas que hacen llorar el corazón, pero de alegría. Todos los años, desde hace rato, viene mucha gente caminando desde por allá bien lejos, hasta desde el Ecuador. Vienen a ver a la Virgencita, porque ella es bien milagrosa. Hay señores y señoras indígenas que traen sus bordones, otros vienen con los guagüitas chiquitos como yo, y todos traen promesas en el corazón. Caminan con harta fe, pero uno siente como si fueran rezando bien comañita. Algunos dejan velitas, rosarios, dibujitos, y hasta carticas con lo que les pasó.</p></div>
-                    <div id="s1-text-block-2" class="text-block"><h3>Semana Santa, Celebraciones Litúrgicas y Peregrinaciones en Las Lajas</h3><p>Antes de que comience la Semana Santa, hacen una obra de Jesús. Esa noche no hay ni una lucecita prendida, solo antorchas… ¡parece que el cielo también estuviera rezando con nosotros! Yo esa noche me pongo mi ruanita porque ¡achichay!….. pero no me la pierdo. Después la gente camina desde lejos hasta el Santuario. Pasan por el barrio La Inmaculada,  y también el San Francisco… ¡por toditos los lados!</p></div>
-                    <div id="s1-text-block-3" class="text-block"><h3>Semana Santa, Celebraciones Litúrgicas y Peregrinaciones en Las Lajas</h3><p>A mí me gusta la procesión de ramos, porque todos llevan palmas algunas tejidas, bien bonitas, y en la vigilia pascual se siente como si el alma se le alegrara a uno. También se reza por los que están enfermitos. Las calles se llenan de gentes, caminando y también se sienten las promesas que se dicen calladito. Todo huele bien rico, como a fe. Mi mamá dice que esos días la Virgencita camina con nosotros, por eso se siente distinto.  Yo siempre digo que en Semana Santa Las Lajas late hartísimo, porque la fe va caminando a pasitos con nosotros. ¿Y Vuste viene? ¡Porque aquí se tiene harta esperanza y hasta milagros!</p></div>
+                    <div class="slide-main-interactive-area">
+                        <div class="circle-buttons-container">
+                            <button class="circle-button" data-text-target="s1-text-block-1">🚶‍♂️</button>
+                            <button class="circle-button" data-text-target="s1-text-block-2">🔥</button>
+                            <button class="circle-button" data-text-target="s1-text-block-3">🌿</button>
+                        </div>
+                        <div id="s1-text-block-1" class="text-block"><p>¿Sabe qué? Le voy a contar cómo es la Semana Santa acá en Las Lajas, que es bien linda y llena de cosas que hacen llorar el corazón, pero de alegría. Todos los años, desde hace rato, viene mucha gente caminando desde por allá bien lejos, hasta desde el Ecuador. Vienen a ver a la Virgencita, porque ella es bien milagrosa. Hay señores y señoras indígenas que traen sus bordones, otros vienen con los guagüitas chiquitos como yo, y todos traen promesas en el corazón. Caminan con harta fe, pero uno siente como si fueran rezando bien comañita. Algunos dejan velitas, rosarios, dibujitos, y hasta carticas con lo que les pasó.</p></div>
+                        <div id="s1-text-block-2" class="text-block"><p>Antes de que comience la Semana Santa, hacen una obra de Jesús. Esa noche no hay ni una lucecita prendida, solo antorchas… ¡parece que el cielo también estuviera rezando con nosotros! Yo esa noche me pongo mi ruanita porque ¡achichay!….. pero no me la pierdo. Después la gente camina desde lejos hasta el Santuario. Pasan por el barrio La Inmaculada,  y también el San Francisco… ¡por toditos los lados!</p></div>
+                        <div id="s1-text-block-3" class="text-block"><p>A mí me gusta la procesión de ramos, porque todos llevan palmas algunas tejidas, bien bonitas, y en la vigilia pascual se siente como si el alma se le alegrara a uno. También se reza por los que están enfermitos. Las calles se llenan de gentes, caminando y también se sienten las promesas que se dicen calladito. Todo huele bien rico, como a fe. Mi mamá dice que esos días la Virgencita camina con nosotros, por eso se siente distinto.  Yo siempre digo que en Semana Santa Las Lajas late hartísimo, porque la fe va caminando a pasitos con nosotros. ¿Y Vuste viene? ¡Porque aquí se tiene harta esperanza y hasta milagros!</p></div>
+                    </div>
                 </div>
                 <div class="slide-navigation-buttons">
                     <span></span>
@@ -147,44 +151,54 @@
 
             <!-- Contenido para Slide 2: Festividades Navideñas -->
             <div class="slide-specific-content" data-content-for-slide="slide2">
-               <div class="slide-main-interactive-area">
-                    <div class="circle-buttons-container">
-                        <button class="circle-button" data-text-target="s2-text-block-1">1</button>
-                        <button class="circle-button" data-text-target="s2-text-block-2">2</button>
-                        <button class="circle-button" data-text-target="s2-text-block-3">3</button>
+                <div class="slide-right-column">
+                    <div class="slide-title-container">
+                        <h3>Festividades Navideñas de La Virgen de Las Lajas</h3>
                     </div>
-                    <div id="s2-text-block-1" class="text-block"><h3>Festividades Navideñas de La Virgen de Las Lajas</h3><p>En diciembre, Las Lajas se hace brillante!!!. Aquí celebramos la Navidad con la Mamita de Las Lajas, y es bien bonito, porque todo se siente diferente. Empieza el 7 de diciembre, cuando prendemos velitas también se prenden las lucecitas en el Santuario y por todito el pueblo. El 8 es la fiesta de la Virgen Inmaculada. Ese día, Las Lajas parece un pesebre grandote, lleno de luces, música, estrellas y villancicos. La gente reza, canta, y uno siente que el corazón se le alegra solito. Los padrecitos, las monjitas y los señores que ayudan se encargan de preparar todo con mucho cariño. Se hacen hartas misas, a veces ¡hasta dieciséis en un solo día!, y uno no se cansa porque todo es de buen modo, con fe.</p></div>
-                    <div id="s2-text-block-2" class="text-block"><h3>Festividades Navideñas de La Virgen de Las Lajas</h3><p>A mí me gusta mucho el Pregón Navideño. Es como un desfile bien bonito. Adelante va una carroza con la imagen de la Virgencita va hasta Ipiales y por varias parroquias, y van niños, ángeles, pastores y músicos que van cantando que Jesús ya viene. ¡Es como si todo el pueblo saliera a avisar que ya va nacer el niño Dios y la misma Virgencita de las Lajas invita!!! Yo siempre pienso que en Navidad la Virgen se pone feliz, porque todo brilla bonito y el pueblo entero se alista para recibir al Niño Dios.</p></div>
-                    <div id="s2-text-block-3" class="text-block"><h3>Festividades Navideñas de La Virgen de Las Lajas</h3><p>Y eso no es todo… También hacemos la Novena de Aguinaldos, que es linda, linda. Cada barrio se encarga de un día, y lo celebra con mucha alegría. Nos vestimos del pesebre, María, José, los angelitos, y pastorcitos, y caminamos con luces, cantos y pólvora que pinta el cielo.  Todo empieza también en el barrio La Inmaculada y termina allá, en Las Lajas.   Se reza, se canta y la gente va con devoción. El último día es el que más me gusta. Se hace la consagración de los guagüitas al Niño Jesús y a la Virgen de Las Lajas. Los niños vamos disfrazados, y al final hay una misa muy bonita. Nos dan regalitos y todos contentos. Es una fiesta donde se siente, la fe, la esperanza y el amor de la Madre que nos cuida. ¿Vamos? Porque en esta noche, todo el cielo parece que también quiere cantar.</p></div>
-                </div>
-                   <div class="slide2-controls-container">
-                        <button id="toggle-christmas-light-button">Encender la Navidad</button>
-                   </div>
-                    <div class="slide-navigation-buttons">
-                        <button class="slide-prev-button"
-                                data-prev-slide-id="slide1"
-                                data-prev-animation="videos/slide1-animation.mp4"
-                                data-transition-video="videos/slide2-to-slide1-transition.mp4"
-                                data-prev-text="← SEMANA SANTA">← Anterior</button>
-                        <button class="slide-next-button"
-                                data-next-slide-id="slide3"
-                                data-next-animation="videos/slide3-animation.mp4"
-                                data-transition-video="videos/slide2-to-slide3-transition.mp4"
-                                data-next-text="QUINCENARIO →">Siguiente →</button>
+                    <div class="slide-main-interactive-area">
+                        <div class="circle-buttons-container">
+                            <button class="circle-button" data-text-target="s2-text-block-1">✨</button>
+                            <button class="circle-button" data-text-target="s2-text-block-2">👼</button>
+                            <button class="circle-button" data-text-target="s2-text-block-3">🎁</button>
+                        </div>
+                        <div id="s2-text-block-1" class="text-block"><p>En diciembre, Las Lajas se hace brillante!!!. Aquí celebramos la Navidad con la Mamita de Las Lajas, y es bien bonito, porque todo se siente diferente. Empieza el 7 de diciembre, cuando prendemos velitas también se prenden las lucecitas en el Santuario y por todito el pueblo. El 8 es la fiesta de la Virgen Inmaculada. Ese día, Las Lajas parece un pesebre grandote, lleno de luces, música, estrellas y villancicos. La gente reza, canta, y uno siente que el corazón se le alegra solito. Los padrecitos, las monjitas y los señores que ayudan se encargan de preparar todo con mucho cariño. Se hacen hartas misas, a veces ¡hasta dieciséis en un solo día!, y uno no se cansa porque todo es de buen modo, con fe.</p></div>
+                        <div id="s2-text-block-2" class="text-block"><p>A mí me gusta mucho el Pregón Navideño. Es como un desfile bien bonito. Adelante va una carroza con la imagen de la Virgencita va hasta Ipiales y por varias parroquias, y van niños, ángeles, pastores y músicos que van cantando que Jesús ya viene. ¡Es como si todo el pueblo saliera a avisar que ya va nacer el niño Dios y la misma Virgencita de las Lajas invita!!! Yo siempre pienso que en Navidad la Virgen se pone feliz, porque todo brilla bonito y el pueblo entero se alista para recibir al Niño Dios.</p></div>
+                        <div id="s2-text-block-3" class="text-block"><p>Y eso no es todo… También hacemos la Novena de Aguinaldos, que es linda, linda. Cada barrio se encarga de un día, y lo celebra con mucha alegría. Nos vestimos del pesebre, María, José, los angelitos, y pastorcitos, y caminamos con luces, cantos y pólvora que pinta el cielo.  Todo empieza también en el barrio La Inmaculada y termina allá, en Las Lajas.   Se reza, se canta y la gente va con devoción. El último día es el que más me gusta. Se hace la consagración de los guagüitas al Niño Jesús y a la Virgen de Las Lajas. Los niños vamos disfrazados, y al final hay una misa muy bonita. Nos dan regalitos y todos contentos. Es una fiesta donde se siente, la fe, la esperanza y el amor de la Madre que nos cuida. ¿Vamos? Porque en esta noche, todo el cielo parece que también quiere cantar.</p></div>
                     </div>
                 </div>
+                <div class="slide2-controls-container">
+                    <button id="toggle-christmas-light-button">Encender la Navidad</button>
+                </div>
+                <div class="slide-navigation-buttons">
+                    <button class="slide-prev-button"
+                            data-prev-slide-id="slide1"
+                            data-prev-animation="videos/slide1-animation.mp4"
+                            data-transition-video="videos/slide2-to-slide1-transition.mp4"
+                            data-prev-text="← SEMANA SANTA">← Anterior</button>
+                    <button class="slide-next-button"
+                            data-next-slide-id="slide3"
+                            data-next-animation="videos/slide3-animation.mp4"
+                            data-transition-video="videos/slide2-to-slide3-transition.mp4"
+                            data-next-text="QUINCENARIO →">Siguiente →</button>
+                </div>
+            </div>
 
             <!-- Contenido para Slide 3: Fiestas Patronales -->
             <div class="slide-specific-content" data-content-for-slide="slide3">
-                <div class="slide-main-interactive-area">
-                    <div class="circle-buttons-container">
-                        <button class="circle-button" data-text-target="s3-text-block-1">1</button>
-                        <button class="circle-button" data-text-target="s3-text-block-2">2</button>
-                        <button class="circle-button" data-text-target="s3-text-block-3">3</button>
+                <div class="slide-right-column">
+                    <div class="slide-title-container">
+                        <h3>Fiestas Patronales del Quincenario a La Virgen de Las Lajas</h3>
                     </div>
-                    <div id="s3-text-block-1" class="text-block"><h3>Fiestas Patronales del Quincenario a La Virgen de Las Lajas</h3><p>¿Sabe qué?... En mi casa toditos nos ponemos contentos en septiembre, porque empieza el Quincenario de la Mamita Mirona. Son quince días bien lindos, llenos de oraciones, cantos y mucha alegría. Todo arranca el 31 de agosto con el pregón, ¡esa es la invitación que hace la Virgencita para su fiesta! Hay desfile con música, y la gente se disfraza bien bonito contando cómo nació el Santuario. Me gusta mirar los trajes y a las llamitas es muy divertido. Desde el primero hasta el quince de septiembre van llegando los fiesteros, desde montones de pueblos. Vienen bailando, con sus imágenes, sus semillas, y traen hartas ofrendas que después el padrecito bendice. Dicen que esas bendiciones les dan fuerza para seguir con ganas y esperanza. En mi casita, como siempre, recibimos los peregrinos. Mi Mamita María hace sopita de poliada caliente y compartimos la comida, rezamos todos junticos y tomamos el  champús que trae mi abuelita.</p></div>
-                    <div id="s3-text-block-2" class="text-block"><h3>Fiestas Patronales del Quincenario a La Virgen de Las Lajas</h3><p>El pueblo se llena, de cantos bonitos y de promesas que se sienten en el corazón. Yo creo que hasta las montañas y el Guaitara rezan con nosotros… porque cuando la Virgencita nos mira, todo se vuelve sagrado.  Y verá que durante esos días hay cosas bien lindas. Hacen concursos de canciones y poesías para la Virgencita, una carrera y al trote vienen desde Ipiales hasta el Santuario —¡corren durísimo!— y también un festival de danzas donde toditos bailan contentos. Lo que más me gusta es cuando los guagüas, como yo, somos parte de la fiesta. Nos disfrazamos y caminamos en la procesión desde el barrio La Inmaculada, llevamos flores, dibujos y le decimos a la Mamita de Las Lajas cuánto la queremos. Al final nos regalan estampitas benditas y dulces. ¡Me guardo todo como tesoro!</p></div>
-                    <div id="s3-text-block-3" class="text-block"><h3>Fiestas Patronales del Quincenario a La Virgen de Las Lajas</h3><p>El 16 de septiembre se acaba con una misa grande. Ese día, el pueblo se siente diferente... como si el cielo se hubiera bajado a abrazarnos. ¿No le parece bonito, cierto? ¡Vamos a celebrarlo! Porque acá en Las Lajas, el amor se nota en cada corazón.</p></div>
+                    <div class="slide-main-interactive-area">
+                        <div class="circle-buttons-container">
+                            <button class="circle-button" data-text-target="s3-text-block-1">🦙</button>
+                            <button class="circle-button" data-text-target="s3-text-block-2">💃</button>
+                            <button class="circle-button" data-text-target="s3-text-block-3">🙏</button>
+                        </div>
+                        <div id="s3-text-block-1" class="text-block"><p>¿Sabe qué?... En mi casa toditos nos ponemos contentos en septiembre, porque empieza el Quincenario de la Mamita Mirona. Son quince días bien lindos, llenos de oraciones, cantos y mucha alegría. Todo arranca el 31 de agosto con el pregón, ¡esa es la invitación que hace la Virgencita para su fiesta! Hay desfile con música, y la gente se disfraza bien bonito contando cómo nació el Santuario. Me gusta mirar los trajes y a las llamitas es muy divertido. Desde el primero hasta el quince de septiembre van llegando los fiesteros, desde montones de pueblos. Vienen bailando, con sus imágenes, sus semillas, y traen hartas ofrendas que después el padrecito bendice. Dicen que esas bendiciones les dan fuerza para seguir con ganas y esperanza. En mi casita, como siempre, recibimos los peregrinos. Mi Mamita María hace sopita de poliada caliente y compartimos la comida, rezamos todos junticos y tomamos el  champús que trae mi abuelita.</p></div>
+                        <div id="s3-text-block-2" class="text-block"><p>El pueblo se llena, de cantos bonitos y de promesas que se sienten en el corazón. Yo creo que hasta las montañas y el Guaitara rezan con nosotros… porque cuando la Virgencita nos mira, todo se vuelve sagrado.  Y verá que durante esos días hay cosas bien lindas. Hacen concursos de canciones y poesías para la Virgencita, una carrera y al trote vienen desde Ipiales hasta el Santuario —¡corren durísimo!— y también un festival de danzas donde toditos bailan contentos. Lo que más me gusta es cuando los guagüas, como yo, somos parte de la fiesta. Nos disfrazamos y caminamos en la procesión desde el barrio La Inmaculada, llevamos flores, dibujos y le decimos a la Mamita de Las Lajas cuánto la queremos. Al final nos regalan estampitas benditas y dulces. ¡Me guardo todo como tesoro!</p></div>
+                        <div id="s3-text-block-3" class="text-block"><p>El 16 de septiembre se acaba con una misa grande. Ese día, el pueblo se siente diferente... como si el cielo se hubiera bajado a abrazarnos. ¿No le parece bonito, cierto? ¡Vamos a celebrarlo! Porque acá en Las Lajas, el amor se nota en cada corazón.</p></div>
+                    </div>
                 </div>
                 <div class="slide-navigation-buttons">
                     <button class="slide-prev-button"
@@ -202,15 +216,20 @@
 
             <!-- Contenido para Slide 4: Exvotos -->
             <div class="slide-specific-content" data-content-for-slide="slide4">
-                 <div class="slide-main-interactive-area">
-                    <div class="circle-buttons-container">
-                        <button class="circle-button" data-text-target="s4-text-block-1">1</button>
-                        <button class="circle-button" data-text-target="s4-text-block-2">2</button>
-                        <button class="circle-button" data-text-target="s4-text-block-3">3</button>
+                <div class="slide-right-column">
+                    <div class="slide-title-container">
+                         <h3>Exvotos a la Virgen de Las Lajas</h3>
                     </div>
-                    <div id="s4-text-block-1" class="text-block"><h3>Exvotos a la Virgen de Las Lajas</h3><p>Hoy les cuento, a qué llamamos los Exvotos. Son como regalitos que la gente le trae a la Virgencita de Las Lajas para decirle gracias por un milagro o por cumplir una promesita que tenían en el corazón. Hay de hartos tipos: placas, velas, rosarios, dibujos, muletas, bastones… hasta algodón o pelo ponen entre las piedras. Cada cosita tiene su historia, como oración que se quedó guardada en el regalo a la Mamita de Las Lajas. Vieran… Es gente agradecida o con esperanzas bien grandes. Si Vusté viene al Santuario, verá muchísimos de esos exvotos pegados en las piedras del camino. Es como si las montañas guardaran secretos, como si escucharan junto con la Virgen de Las Lajas. Para mí, cada exvoto le dice a la Virgencita: “Gracias Mamita por cuidarnos, no te olvides de mi”.</p></div>
-                    <div id="s4-text-block-2" class="text-block"><h3>Exvotos a la Virgen de Las Lajas</h3><p>Las plaquitas son como carticas duras, hechas de piedra o metal, y dicen cosas lindas como: “Gracias, Virgencita, por ayudarme”. Los algodones los dejan los que están enfermitos, como pa’ que la Virgen les toque el cuerpo y los sane. También hay rosarios colgados, porque rezar es como hablar pasito con la Virgen bien al oído.</p></div>
-                    <div id="s4-text-block-3" class="text-block"><h3>Exvotos a la Virgen de Las Lajas</h3><p>Y las velas… ¡esas, que lindas que han sabido ser! Cada una lleva una oración guardada en su luz. A veces, la gente se la soba en su cuerpo o les pone el nombre de alguien para que la Virgencita le ayude con lo que piden, mamita dice que, si la llama de la vela se mueve bonito o si la cera forma una figura especial, es porque los ángeles de la Virgencita están escuchando y es más grande el  milagrito. ¡divisemos estos detalles bien lindos que dicen hartísimo pero calladitos!</p></div>
+                    <div class="slide-main-interactive-area">
+                        <div class="circle-buttons-container">
+                            <button class="circle-button" data-text-target="s4-text-block-1">💖</button>
+                            <button class="circle-button" data-text-target="s4-text-block-2">📿</button>
+                            <button class="circle-button" data-text-target="s4-text-block-3">🕯️</button>
+                        </div>
+                        <div id="s4-text-block-1" class="text-block"><p>Hoy les cuento, a qué llamamos los Exvotos. Son como regalitos que la gente le trae a la Virgencita de Las Lajas para decirle gracias por un milagro o por cumplir una promesita que tenían en el corazón. Hay de hartos tipos: placas, velas, rosarios, dibujos, muletas, bastones… hasta algodón o pelo ponen entre las piedras. Cada cosita tiene su historia, como oración que se quedó guardada en el regalo a la Mamita de Las Lajas. Vieran… Es gente agradecida o con esperanzas bien grandes. Si Vusté viene al Santuario, verá muchísimos de esos exvotos pegados en las piedras del camino. Es como si las montañas guardaran secretos, como si escucharan junto con la Virgen de Las Lajas. Para mí, cada exvoto le dice a la Virgencita: “Gracias Mamita por cuidarnos, no te olvides de mi”.</p></div>
+                        <div id="s4-text-block-2" class="text-block"><p>Las plaquitas son como carticas duras, hechas de piedra o metal, y dicen cosas lindas como: “Gracias, Virgencita, por ayudarme”. Los algodones los dejan los que están enfermitos, como pa’ que la Virgen les toque el cuerpo y los sane. También hay rosarios colgados, porque rezar es como hablar pasito con la Virgen bien al oído.</p></div>
+                        <div id="s4-text-block-3" class="text-block"><p>Y las velas… ¡esas, que lindas que han sabido ser! Cada una lleva una oración guardada en su luz. A veces, la gente se la soba en su cuerpo o les pone el nombre de alguien para que la Virgencita le ayude con lo que piden, mamita dice que, si la llama de la vela se mueve bonito o si la cera forma una figura especial, es porque los ángeles de la Virgencita están escuchando y es más grande el  milagrito. ¡divisemos estos detalles bien lindos que dicen hartísimo pero calladitos!</p></div>
+                    </div>
                 </div>
                 <div class="slide-navigation-buttons">
                     <button class="slide-prev-button"
@@ -218,11 +237,7 @@
                             data-prev-animation="videos/slide3-animation.mp4"
                             data-transition-video="videos/slide4-to-slide3-transition.mp4"
                             data-prev-text="← QUINCENARIO">← Anterior</button>
-                    <button class="slide-next-button"
-                            data-next-slide-id="slide5"
-                            data-next-animation="videos/slide5-animation.mp4"
-                            data-transition-video="videos/slide4-to-slide5-transition.mp4"
-                            data-next-text="TERRITORIO →">Siguiente →</button>
+                    <span></span> 
                 </div>
             </div>
 
@@ -236,17 +251,12 @@
                     <img src="images/exvotos.png" alt="Imagen de Exvotos" class="slide5-overlay-image" data-image-for="exvotos">
                     <img src="images/barrios.png" alt="Imagen de Barrios" class="slide5-overlay-image" data-image-for="barrios">
                 </div>
-
                  <div class="slide-navigation-buttons">
-                    <button class="slide-prev-button" 
-                            data-prev-slide-id="slide4" 
-                            data-prev-animation="videos/slide4-animation.mp4"
-                            data-transition-video="videos/slide5-to-slide4-transition.mp4"
-                            data-prev-text="← EXVOTOS">← Anterior</button>
+                    <span></span> 
                     <span></span>
                 </div>
                 <div class="slide5-image-controls">
-                    <button class="slide5-control-button" data-image-target="semana">Semana</button>
+                    <button class="slide5-control-button" data-image-target="semana">Semana Santa</button>
                     <button class="slide5-control-button" data-image-target="navidad">Navidad</button>
                     <button class="slide5-control-button" data-image-target="quincenario">Quincenario</button>
                     <button class="slide5-control-button" data-image-target="exvotos">Exvotos</button>
