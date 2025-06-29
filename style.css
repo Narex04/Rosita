@@ -735,7 +735,7 @@ html, body {
 
 /* === INICIO DE CAMBIOS: ESTILOS PARA MÓVILES === */
 #mobile-fullscreen-prompt {
-    display: none; /* Oculto por defecto en escritorio */
+    display: flex;
     position: fixed;
     top: 0;
     left: 0;
@@ -748,6 +748,10 @@ html, body {
     justify-content: center;
     align-items: center;
     text-align: center;
+}
+
+#app-container {
+    display: none; /* Oculto por defecto, JS lo mostrará */
 }
 
 .prompt-content {
@@ -784,13 +788,10 @@ html, body {
     letter-spacing: 1px;
 }
 
-/* Media Query para mostrar el prompt solo en móviles en modo vertical */
-@media (max-width: 1024px) and (orientation: portrait) {
+/* Ocultar el prompt en pantallas de escritorio */
+@media (min-width: 1025px) {
     #mobile-fullscreen-prompt {
-        display: flex;
-    }
-    #app-container {
-        display: none; /* Ocultar la app principal hasta entrar en fullscreen */
+        display: none;
     }
 }
 /* === FIN DE CAMBIOS: ESTILOS PARA MÓVILES === */

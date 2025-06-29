@@ -21,46 +21,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const mobilePrompt = document.getElementById('mobile-fullscreen-prompt');
     const enterFullscreenButton = document.getElementById('enter-fullscreen-button');
+    let appInitialized = false;
 
-    function isMobileDevice() {
-        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    }
-    
     async function requestFullscreenAndLockOrientation() {
         try {
-            await document.documentElement.requestFullscreen();
-            await screen.orientation.lock('landscape');
+            if (document.documentElement.requestFullscreen) {
+                await document.documentElement.requestFullscreen();
+            } else if (document.documentElement.mozRequestFullScreen) { /* Firefox */
+                await document.documentElement.mozRequestFullScreen();
+            } else if (document.documentElement.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+                await document.documentElement.webkitRequestFullscreen();
+            } else if (document.documentElement.msRequestFullscreen) { /* IE/Edge */
+                await document.documentElement.msRequestFullscreen();
+            }
+            
+            if (screen.orientation && screen.orientation.lock) {
+                await screen.orientation.lock('landscape');
+            }
         } catch (err) {
             console.error(`Error al intentar entrar en pantalla completa o bloquear orientación: ${err.message}`);
         }
     }
 
-    if (isMobileDevice() && enterFullscreenButton) {
-        // Mostramos el prompt solo si es móvil y no estamos ya en pantalla completa
-        if (!document.fullscreenElement) {
-            mobilePrompt.style.display = 'flex';
-            appContainer.style.display = 'none';
-        }
-
+    // Lógica del botón de pantalla completa
+    if (enterFullscreenButton) {
         enterFullscreenButton.addEventListener('click', async () => {
             await requestFullscreenAndLockOrientation();
-            mobilePrompt.style.display = 'none';
-            appContainer.style.display = 'block';
-            scaleAndCenterApp(); // Re-calcular escala después de cambiar de modo
         });
-        
-        // Listener para cuando el usuario sale de pantalla completa
-        document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement) {
-                mobilePrompt.style.display = 'flex';
-                appContainer.style.display = 'none';
-            }
-        });
-
-    } else {
-        // Si no es móvil, nos aseguramos que la app sea visible
-        appContainer.style.display = 'block';
     }
+
+    // Listener para los cambios de estado de pantalla completa
+    document.addEventListener('fullscreenchange', () => {
+        if (document.fullscreenElement) {
+            // Entramos en pantalla completa
+            if (mobilePrompt) mobilePrompt.style.display = 'none';
+            appContainer.style.display = 'block';
+            scaleAndCenterApp();
+            // Inicializar la app solo la primera vez que entramos a pantalla completa
+            if (!appInitialized) {
+                initializeApp();
+                appInitialized = true;
+            }
+        } else {
+            // Salimos de pantalla completa
+            if (mobilePrompt) mobilePrompt.style.display = 'flex';
+            appContainer.style.display = 'none';
+        }
+    });
 
     // === FIN DE CAMBIOS: LÓGICA DE ESCALADO Y PANTALLA COMPLETA ===
 
@@ -967,10 +974,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     async function initializeApp() {
-        if (!isMobileDevice()) {
-            scaleAndCenterApp();
-            window.addEventListener('resize', scaleAndCenterApp);
-        }
+        scaleAndCenterApp();
+        window.addEventListener('resize', scaleAndCenterApp);
 
         uiOverlayLayer.classList.remove('active');
         menuVideoLayer.classList.remove('active');
@@ -986,17 +991,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (introSource && introSource.src) {
                  await ensureVideoCanPlay(introVideoElement);
             }
-            if (!isMobileDevice() || document.fullscreenElement) {
-                actuallyShowIntroUi();
-            }
+            actuallyShowIntroUi();
         } catch (e) {
             console.error("[initializeApp] Error during initial video preparation or showing intro UI:", e);
-            if (!isMobileDevice() || document.fullscreenElement) {
-                actuallyShowIntroUi();
-            }
+            actuallyShowIntroUi();
             setControlsWaitingState(false);
         }
     }
-
-    initializeApp();
+    
+    // Decidir si iniciar la app directamente o mostrar el prompt
+    if (window.getComputedStyle(mobilePrompt).display === 'none') {
+        // Estamos en escritorio, el prompt está oculto por CSS
+        appContainer.style.display = 'block';
+        initializeApp();
+        appInitialized = true;
+    }
 });
