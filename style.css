@@ -139,13 +139,11 @@ html, body {
     width: 100%;
     height: 100%;
 }
-/* --- REGLA NUEVA 1 --- */
 #intro-content-wrapper {
     position: absolute;
-    left: 800px; /* Mantenemos el inicio a la izquierda */
-    right: 70px; /* AÑADIMOS el final a 70px del borde derecho */
-    width: auto; /* Dejamos que el ancho se calcule automáticamente */
-    /* ... otros estilos se mantienen igual ... */
+    left: 800px;
+    right: 70px;
+    width: auto;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -210,14 +208,12 @@ html, body {
     transform: scale(1) !important;
     box-shadow: none !important;
 }
-/* --- REGLA NUEVA 2 --- */
 #intro-disclaimer {
     position: absolute;
     bottom: 70px;
-    left: 800px; /* Mantenemos el inicio a la izquierda */
-    right: 70px; /* AÑADIMOS el final a 70px del borde derecho */
-    width: auto; /* Dejamos que el ancho se calcule automáticamente */
-    /* ... otros estilos se mantienen igual ... */
+    left: 800px;
+    right: 70px;
+    width: auto;
     padding: 12px;
     background-color: rgba(0, 0, 0, 0.65);
     border-radius: 6px;
@@ -632,15 +628,13 @@ html, body {
     transform: scale(1) !important;
 }
 
-/* === INICIO DEL CAMBIO === */
 .slide2-controls-container {
     position: absolute;
-    bottom: 0; /* Alineado al margen inferior estándar */
+    bottom: 0;
     left: 50%;
     transform: translateX(-50%);
     z-index: 110;
 }
-/* === FIN DEL CAMBIO === */
 
 #toggle-christmas-light-button {
     font-family: 'Onest', sans-serif;
@@ -698,7 +692,7 @@ html, body {
     gap: 15px;
     width: 100%;
     position: absolute;
-    bottom: 70px;
+    bottom: 0;
     left: 0;
     right: 0;
     padding: 0;
@@ -738,3 +732,65 @@ html, body {
     box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.5);
     transform: scale(1.05);
 }
+
+/* === INICIO DE CAMBIOS: ESTILOS PARA MÓVILES === */
+#mobile-fullscreen-prompt {
+    display: none; /* Oculto por defecto en escritorio */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    color: #fff;
+    z-index: 9999;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.prompt-content {
+    padding: 20px;
+}
+
+.prompt-content h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.prompt-content p {
+    font-family: 'Onest', sans-serif;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    max-width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#enter-fullscreen-button {
+    font-family: 'Onest', sans-serif;
+    background-color: #fff;
+    color: #000;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 30px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Media Query para mostrar el prompt solo en móviles en modo vertical */
+@media (max-width: 1024px) and (orientation: portrait) {
+    #mobile-fullscreen-prompt {
+        display: flex;
+    }
+    #app-container {
+        display: none; /* Ocultar la app principal hasta entrar en fullscreen */
+    }
+}
+/* === FIN DE CAMBIOS: ESTILOS PARA MÓVILES === */

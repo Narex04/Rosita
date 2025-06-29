@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     const appContainer = document.getElementById('app-container');
 
+    // === INICIO DE CAMBIOS: LÓGICA DE ESCALADO Y PANTALLA COMPLETA ===
+    
     function scaleAndCenterApp() {
         const targetWidth = 1600;
         const targetHeight = 900;
@@ -16,6 +18,51 @@ document.addEventListener('DOMContentLoaded', () => {
             appContainer.style.transform = `translate(-50%, -50%) scale(${scale})`;
         }
     }
+
+    const mobilePrompt = document.getElementById('mobile-fullscreen-prompt');
+    const enterFullscreenButton = document.getElementById('enter-fullscreen-button');
+
+    function isMobileDevice() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+    
+    async function requestFullscreenAndLockOrientation() {
+        try {
+            await document.documentElement.requestFullscreen();
+            await screen.orientation.lock('landscape');
+        } catch (err) {
+            console.error(`Error al intentar entrar en pantalla completa o bloquear orientación: ${err.message}`);
+        }
+    }
+
+    if (isMobileDevice() && enterFullscreenButton) {
+        // Mostramos el prompt solo si es móvil y no estamos ya en pantalla completa
+        if (!document.fullscreenElement) {
+            mobilePrompt.style.display = 'flex';
+            appContainer.style.display = 'none';
+        }
+
+        enterFullscreenButton.addEventListener('click', async () => {
+            await requestFullscreenAndLockOrientation();
+            mobilePrompt.style.display = 'none';
+            appContainer.style.display = 'block';
+            scaleAndCenterApp(); // Re-calcular escala después de cambiar de modo
+        });
+        
+        // Listener para cuando el usuario sale de pantalla completa
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                mobilePrompt.style.display = 'flex';
+                appContainer.style.display = 'none';
+            }
+        });
+
+    } else {
+        // Si no es móvil, nos aseguramos que la app sea visible
+        appContainer.style.display = 'block';
+    }
+
+    // === FIN DE CAMBIOS: LÓGICA DE ESCALADO Y PANTALLA COMPLETA ===
 
     // --- Elementos del DOM ---
     const staticFrameImage = document.getElementById('static-frame-image');
@@ -233,7 +280,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     toggleChristmasLightButton.textContent = "Apagar la Navidad";
                     setControlsWaitingState(false);
                     
-                    // === INICIO DE LA CORRECCIÓN ===
                     const slide2Content = document.querySelector('.slide-specific-content[data-content-for-slide="slide2"]');
                     if (slide2Content) {
                         const titleContainer = slide2Content.querySelector('.slide-title-container');
@@ -241,7 +287,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             titleContainer.classList.add('visible');
                         }
                     }
-                    // === FIN DE LA CORRECCIÓN ===
                     finalScenePromise = Promise.resolve();
 
                 } else if (actionToExecute.type === 'PLAY_SLIDE2_DAY_VIDEO') {
@@ -255,7 +300,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     toggleChristmasLightButton.textContent = "Encender la Navidad";
                     setControlsWaitingState(false);
 
-                    // === INICIO DE LA CORRECCIÓN ===
                     const slide2Content = document.querySelector('.slide-specific-content[data-content-for-slide="slide2"]');
                     if (slide2Content) {
                         const titleContainer = slide2Content.querySelector('.slide-title-container');
@@ -263,7 +307,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             titleContainer.classList.add('visible');
                         }
                     }
-                    // === FIN DE LA CORRECCIÓN ===
                     finalScenePromise = Promise.resolve();
                     
                 }
@@ -924,8 +967,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     async function initializeApp() {
-        scaleAndCenterApp();
-        window.addEventListener('resize', scaleAndCenterApp);
+        if (!isMobileDevice()) {
+            scaleAndCenterApp();
+            window.addEventListener('resize', scaleAndCenterApp);
+        }
 
         uiOverlayLayer.classList.remove('active');
         menuVideoLayer.classList.remove('active');
@@ -941,10 +986,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (introSource && introSource.src) {
                  await ensureVideoCanPlay(introVideoElement);
             }
-            actuallyShowIntroUi();
+            if (!isMobileDevice() || document.fullscreenElement) {
+                actuallyShowIntroUi();
+            }
         } catch (e) {
             console.error("[initializeApp] Error during initial video preparation or showing intro UI:", e);
-            actuallyShowIntroUi();
+            if (!isMobileDevice() || document.fullscreenElement) {
+                actuallyShowIntroUi();
+            }
             setControlsWaitingState(false);
         }
     }
