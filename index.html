@@ -37,11 +37,16 @@
             Tu navegador no soporta videos HTML5.
         </video>
     </div>
+    <!-- === INICIO DEL CAMBIO: DOBLE BÚFER PARA TRANSICIONES === -->
     <div id="transition-video-layer" class="video-layer">
-        <video muted playsinline class="fullscreen-video" id="transition-video-element">
+        <video muted playsinline class="fullscreen-video transition-video-buffer" id="transition-video-element-a">
+            Tu navegador no soporta videos HTML5.
+        </video>
+        <video muted playsinline class="fullscreen-video transition-video-buffer" id="transition-video-element-b">
             Tu navegador no soporta videos HTML5.
         </video>
     </div>
+    <!-- === FIN DEL CAMBIO === -->
     <div id="slide-video-layer" class="video-layer">
         <video muted playsinline class="fullscreen-video slide-video-buffer" id="slide-video-buffer-1">
             Tu navegador no soporta videos HTML5.

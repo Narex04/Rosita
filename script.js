@@ -43,27 +43,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Lógica del botón de pantalla completa
     if (enterFullscreenButton) {
         enterFullscreenButton.addEventListener('click', async () => {
             await requestFullscreenAndLockOrientation();
         });
     }
 
-    // Listener para los cambios de estado de pantalla completa
     document.addEventListener('fullscreenchange', () => {
         if (document.fullscreenElement) {
-            // Entramos en pantalla completa
             if (mobilePrompt) mobilePrompt.style.display = 'none';
             appContainer.style.display = 'block';
             scaleAndCenterApp();
-            // Inicializar la app solo la primera vez que entramos a pantalla completa
             if (!appInitialized) {
                 initializeApp();
                 appInitialized = true;
             }
         } else {
-            // Salimos de pantalla completa
             if (mobilePrompt) mobilePrompt.style.display = 'flex';
             appContainer.style.display = 'none';
         }
@@ -108,8 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const slide2ControlsContainer = document.querySelector('.slide2-controls-container');
     const speechBubble = document.getElementById('speech-bubble');
 
-
-// --- Variables de Estado ---
+    // --- Variables de Estado ---
     let currentSceneVideoElement = introVideoElement;
     let currentUiLayer = introLayer;
     let pendingAction = null;
@@ -130,6 +124,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const SLIDE2_TO_NIGHT_TRANSITION = "videos/slide2-to-night-transition.mp4";
     const NIGHT_TO_SLIDE2_TRANSITION = "videos/night-to-slide2-transition.mp4";
 
+    const preloadedVideos = new Map();
+
+    function preloadVideo(src) {
+        if (!src || preloadedVideos.has(src)) {
+            return preloadedVideos.get(src) || Promise.resolve();
+        }
+
+        const video = document.createElement('video');
+        video.src = src;
+        video.muted = true;
+        video.playsInline = true;
+        video.preload = 'auto';
+
+        const promise = new Promise((resolve, reject) => {
+            video.addEventListener('canplaythrough', () => resolve(video), { once: true });
+            video.addEventListener('error', (e) => {
+                console.warn(`No se pudo precargar el video: ${src}`, e);
+                preloadedVideos.delete(src);
+                reject(e);
+            }, { once: true });
+        });
+
+        video.load();
+        preloadedVideos.set(src, promise);
+        return promise;
+    }
 
     // --- Funciones de Video y Transición ---
     async function playVideo(videoElement, loop = false) {
@@ -171,6 +191,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!videoEl) { reject(new Error(`prepareVideoElement: videoEl es null (intentando cargar ${src})`)); return; }
             if (!src) {
                 resolve(); return;
+            }
+            if (!preloadedVideos.has(src)) {
+                try {
+                    await preloadVideo(src);
+                } catch(e) {}
             }
             let sourceTag = videoEl.querySelector('source');
             if (!sourceTag) {
@@ -256,14 +281,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             if (endedVideo === transitionVideoElement) {
+                // --- INICIO DE CORRECCIÓN: Encadenamiento de transiciones desde modo nocturno ---
                 if (actionToExecute.type === 'PLAY_SLIDE2_DAY_VIDEO' && nextActionAfterNightToDay) {
                     const originalAction = nextActionAfterNightToDay;
-                    nextActionAfterNightToDay = null; 
+                    nextActionAfterNightToDay = null;
                     isChristmasNightMode = false;
+
+                    let nextTransitionVideoSrc = null;
+                    let finalPendingAction = null;
                     
-                    transitionToState(originalAction);
-                    return; 
+                    if (originalAction.type === 'SLIDE_TO_MENU_WITH_TRANSITION') {
+                        nextTransitionVideoSrc = originalAction.exitTransition;
+                        finalPendingAction = { type: 'SHOW_MENU_AFTER_EXIT_TRANSITION' };
+                    } else if (originalAction.type === 'SLIDE_TO_SLIDE_WITH_TRANSITION') {
+                        nextTransitionVideoSrc = originalAction.slideTransitionVideo;
+                        finalPendingAction = { type: 'PLAY_SLIDE_AFTER_SLIDE_TRANSITION' };
+                        targetSceneAfterTransition = { slideId: originalAction.nextSlideId, slideAnimation: originalAction.nextSlideAnimation };
+                    }
+
+                    if (nextTransitionVideoSrc && finalPendingAction) {
+                        pendingAction = finalPendingAction; 
+                        
+                        // Prepara y reproduce la *segunda* transición sin llamar a transitionToState
+                        await prepareVideoElement(transitionVideoElement, nextTransitionVideoSrc);
+                        transitionVideoElement.removeEventListener('ended', onVideoEnded);
+                        transitionVideoElement.addEventListener('ended', onVideoEnded, { once: true });
+                        await playVideo(transitionVideoElement, false);
+                        return; // Salimos para evitar que el código de abajo se ejecute.
+                    }
                 }
+                // --- FIN DE CORRECCIÓN ---
                 
                 setTimeout(() => {
                     transitionVideoLayer.classList.remove('active');
@@ -415,6 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await prepareVideoElement(targetBufferForNextSlide, slideAnimation);
             actuallyShowSlideUi(slideId, true);
         } catch (error) {
+            console.error(`Error preparando el slide target: ${slideId}`, error);
             setControlsWaitingState(false);
         }
     }
@@ -497,60 +545,74 @@ document.addEventListener('DOMContentLoaded', () => {
         let loopForVideoAfterInitialEnd = false;
         let subsequentPendingAction = null;
         let layerToActivateForNextVideo = null;
-        if (action.type === 'MENU_TO_SLIDE_WITH_TRANSITION') {
-            videoToWaitFor = menuVideoElement;
-            videoToPlayAfterInitialEnd = transitionVideoElement;
-            targetSceneAfterTransition = { slideId: action.slideId, slideAnimation: action.slideAnimation };
-            await prepareVideoElement(transitionVideoElement, action.entryTransition);
-            subsequentPendingAction = { type: 'PLAY_SLIDE_AFTER_ENTRY_TRANSITION' };
-            layerToActivateForNextVideo = transitionVideoLayer;
-        } else if (action.type === 'SLIDE_TO_MENU_WITH_TRANSITION') {
-            videoToWaitFor = currentSceneVideoElement;
-            videoToPlayAfterInitialEnd = transitionVideoElement;
-            await prepareVideoElement(transitionVideoElement, action.exitTransition);
-            subsequentPendingAction = { type: 'SHOW_MENU_AFTER_EXIT_TRANSITION' };
-            layerToActivateForNextVideo = transitionVideoLayer;
-        } else if (action.type === 'SLIDE_TO_SLIDE_WITH_TRANSITION') {
-            videoToWaitFor = currentSceneVideoElement;
-            videoToPlayAfterInitialEnd = transitionVideoElement;
-            targetSceneAfterTransition = { slideId: action.nextSlideId, slideAnimation: action.nextSlideAnimation };
-            await prepareVideoElement(transitionVideoElement, action.slideTransitionVideo);
-            subsequentPendingAction = { type: 'PLAY_SLIDE_AFTER_SLIDE_TRANSITION' };
-            layerToActivateForNextVideo = transitionVideoLayer;
-        } else if (action.type === 'INTRO_TO_MENU_WITH_VIDEO_SEQUENCE') {
-            videoToWaitFor = introVideoElement;
-            videoToPlayAfterInitialEnd = transitionVideoElement;
-            await prepareVideoElement(transitionVideoElement, INTRO_TO_MENU_TRANSITION_VIDEO);
-            subsequentPendingAction = { type: 'PLAY_MENU_AFTER_INTRO_TRANSITION' };
-            layerToActivateForNextVideo = transitionVideoLayer;
-        } else if (action.type === 'MENU_TO_INTRO_WITH_VIDEO_SEQUENCE') {
-            videoToWaitFor = menuVideoElement;
-            videoToPlayAfterInitialEnd = transitionVideoElement;
-            await prepareVideoElement(transitionVideoElement, MENU_TO_INTRO_TRANSITION_VIDEO);
-            subsequentPendingAction = { type: 'PLAY_INTRO_AFTER_MENU_TRANSITION' };
-            layerToActivateForNextVideo = transitionVideoLayer;
-        } else if (action.type === 'SLIDE2_DAY_TO_NIGHT') {
-            videoToWaitFor = currentSceneVideoElement;
-            videoToPlayAfterInitialEnd = transitionVideoElement;
-            await prepareVideoElement(transitionVideoElement, SLIDE2_TO_NIGHT_TRANSITION);
-            subsequentPendingAction = { type: 'PLAY_SLIDE2_NIGHT_VIDEO' };
-            layerToActivateForNextVideo = transitionVideoLayer;
-        } else if (action.type === 'SLIDE2_NIGHT_TO_DAY') {
-            videoToWaitFor = currentSceneVideoElement;
-            videoToPlayAfterInitialEnd = transitionVideoElement;
-            await prepareVideoElement(transitionVideoElement, NIGHT_TO_SLIDE2_TRANSITION);
-            subsequentPendingAction = { type: 'PLAY_SLIDE2_DAY_VIDEO' };
-            layerToActivateForNextVideo = transitionVideoLayer;
-        } else if (action.type === 'SLIDE_TO_SLIDE_NO_TRANSITION_BUFFER_SWAP') {
-            videoToWaitFor = currentSceneVideoElement;
-             await prepareVideoElement(nextSlideVideoElement, action.animationSrc);
-            layerToActivateForNextVideo = slideVideoLayer;
-             subsequentPendingAction = action;
-        } else if (action.type === 'SLIDE_TO_MENU_NO_TRANSITION') {
-             videoToWaitFor = currentSceneVideoElement;
-             layerToActivateForNextVideo = menuVideoLayer;
-             subsequentPendingAction = action;
+        
+        try {
+            if (action.type === 'MENU_TO_SLIDE_WITH_TRANSITION') {
+                await preloadVideo(action.entryTransition);
+                videoToWaitFor = menuVideoElement;
+                videoToPlayAfterInitialEnd = transitionVideoElement;
+                targetSceneAfterTransition = { slideId: action.slideId, slideAnimation: action.slideAnimation };
+                await prepareVideoElement(transitionVideoElement, action.entryTransition);
+                subsequentPendingAction = { type: 'PLAY_SLIDE_AFTER_ENTRY_TRANSITION' };
+                layerToActivateForNextVideo = transitionVideoLayer;
+            } else if (action.type === 'SLIDE_TO_MENU_WITH_TRANSITION') {
+                await preloadVideo(action.exitTransition);
+                videoToWaitFor = currentSceneVideoElement;
+                videoToPlayAfterInitialEnd = transitionVideoElement;
+                await prepareVideoElement(transitionVideoElement, action.exitTransition);
+                subsequentPendingAction = { type: 'SHOW_MENU_AFTER_EXIT_TRANSITION' };
+                layerToActivateForNextVideo = transitionVideoLayer;
+            } else if (action.type === 'SLIDE_TO_SLIDE_WITH_TRANSITION') {
+                await preloadVideo(action.slideTransitionVideo);
+                videoToWaitFor = currentSceneVideoElement;
+                videoToPlayAfterInitialEnd = transitionVideoElement;
+                targetSceneAfterTransition = { slideId: action.nextSlideId, slideAnimation: action.nextSlideAnimation };
+                await prepareVideoElement(transitionVideoElement, action.slideTransitionVideo);
+                subsequentPendingAction = { type: 'PLAY_SLIDE_AFTER_SLIDE_TRANSITION' };
+                layerToActivateForNextVideo = transitionVideoLayer;
+            } else if (action.type === 'INTRO_TO_MENU_WITH_VIDEO_SEQUENCE') {
+                await preloadVideo(INTRO_TO_MENU_TRANSITION_VIDEO);
+                videoToWaitFor = introVideoElement;
+                videoToPlayAfterInitialEnd = transitionVideoElement;
+                await prepareVideoElement(transitionVideoElement, INTRO_TO_MENU_TRANSITION_VIDEO);
+                subsequentPendingAction = { type: 'PLAY_MENU_AFTER_INTRO_TRANSITION' };
+                layerToActivateForNextVideo = transitionVideoLayer;
+            } else if (action.type === 'MENU_TO_INTRO_WITH_VIDEO_SEQUENCE') {
+                await preloadVideo(MENU_TO_INTRO_TRANSITION_VIDEO);
+                videoToWaitFor = menuVideoElement;
+                videoToPlayAfterInitialEnd = transitionVideoElement;
+                await prepareVideoElement(transitionVideoElement, MENU_TO_INTRO_TRANSITION_VIDEO);
+                subsequentPendingAction = { type: 'PLAY_INTRO_AFTER_MENU_TRANSITION' };
+                layerToActivateForNextVideo = transitionVideoLayer;
+            } else if (action.type === 'SLIDE2_DAY_TO_NIGHT') {
+                await preloadVideo(SLIDE2_TO_NIGHT_TRANSITION);
+                videoToWaitFor = currentSceneVideoElement;
+                videoToPlayAfterInitialEnd = transitionVideoElement;
+                await prepareVideoElement(transitionVideoElement, SLIDE2_TO_NIGHT_TRANSITION);
+                subsequentPendingAction = { type: 'PLAY_SLIDE2_NIGHT_VIDEO' };
+                layerToActivateForNextVideo = transitionVideoLayer;
+            } else if (action.type === 'SLIDE2_NIGHT_TO_DAY') {
+                await preloadVideo(NIGHT_TO_SLIDE2_TRANSITION);
+                videoToWaitFor = currentSceneVideoElement;
+                videoToPlayAfterInitialEnd = transitionVideoElement;
+                await prepareVideoElement(transitionVideoElement, NIGHT_TO_SLIDE2_TRANSITION);
+                subsequentPendingAction = { type: 'PLAY_SLIDE2_DAY_VIDEO' };
+                layerToActivateForNextVideo = transitionVideoLayer;
+            } else if (action.type === 'SLIDE_TO_SLIDE_NO_TRANSITION_BUFFER_SWAP') {
+                await preloadVideo(action.animationSrc);
+                videoToWaitFor = currentSceneVideoElement;
+                await prepareVideoElement(nextSlideVideoElement, action.animationSrc);
+                layerToActivateForNextVideo = slideVideoLayer;
+                subsequentPendingAction = action;
+            } else if (action.type === 'SLIDE_TO_MENU_NO_TRANSITION') {
+                videoToWaitFor = currentSceneVideoElement;
+                layerToActivateForNextVideo = menuVideoLayer;
+                subsequentPendingAction = action;
+            }
+        } catch (e) {
+            console.error("Error durante la precarga en transitionToState, continuando de todos modos...", e);
         }
+
         if (videoToWaitFor && (videoToWaitFor.currentSrc || (videoToWaitFor.querySelector('source') && videoToWaitFor.querySelector('source').src)) ) {
             if (videoToWaitFor.loop) videoToWaitFor.loop = false;
             videoToWaitFor.removeEventListener('ended', onVideoEnded);
@@ -730,6 +792,12 @@ document.addEventListener('DOMContentLoaded', () => {
             introContentWrapper.classList.add('visible');
             introDisclaimer.classList.add('visible');
         }, 50);
+
+        setTimeout(() => {
+            preloadVideo(INTRO_TO_MENU_TRANSITION_VIDEO);
+            preloadVideo("videos/menu-background.mp4");
+        }, 500);
+        
         setControlsWaitingState(false);
     }
 
@@ -767,6 +835,15 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             if (speechBubble) speechBubble.classList.add('visible');
         }, 100);
+
+        setTimeout(() => {
+            allMenuButtons.forEach(button => {
+                preloadVideo(button.dataset.entryTransition);
+                preloadVideo(button.dataset.animation);
+            });
+            preloadVideo(MENU_TO_INTRO_TRANSITION_VIDEO);
+        }, 500);
+
         setControlsWaitingState(false);
     }
 
@@ -830,6 +907,22 @@ document.addEventListener('DOMContentLoaded', () => {
             if (slideId === 'slide2' && !isChristmasNightMode) {
                  if (toggleChristmasLightButton) toggleChristmasLightButton.textContent = "Encender la Navidad";
             }
+
+            setTimeout(() => {
+                if (nextButton) {
+                    preloadVideo(nextButton.dataset.transitionVideo);
+                    preloadVideo(nextButton.dataset.nextAnimation);
+                }
+                if (prevButton) {
+                    preloadVideo(prevButton.dataset.transitionVideo);
+                    preloadVideo(prevButton.dataset.prevAnimation);
+                }
+                const menuButtonForCurrentSlide = document.querySelector(`.menu-button[data-slide-id="${currentSlideId}"]`);
+                if (menuButtonForCurrentSlide) {
+                    preloadVideo(menuButtonForCurrentSlide.dataset.exitTransition);
+                }
+            }, 500);
+
         } else {
             slideInteractiveElements.style.display = 'none';
             slideBackToMenuButton.style.display = 'none';
@@ -1001,7 +1094,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Decidir si iniciar la app directamente o mostrar el prompt
     if (window.getComputedStyle(mobilePrompt).display === 'none') {
-        // Estamos en escritorio, el prompt está oculto por CSS
         appContainer.style.display = 'block';
         initializeApp();
         appInitialized = true;
